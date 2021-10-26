@@ -1,0 +1,3 @@
+#use_output "dune top";;
+open Game;;
+#use "src/move.ml";;
