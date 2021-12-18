@@ -4,19 +4,16 @@
     "name": {
       "type": "string"
     },
-    "hp": {
+    "power": {
       "type": "integer"
     },
-    "attack": {
+    "accuracy": {
       "type": "integer"
     },
-    "defense": {
+    "uses": {
       "type": "integer"
     },
-    "speed": {
-      "type": "integer"
-    },
-    "moves": {
+    "effects": {
       "type": "array",
       "items": [
         {
@@ -24,19 +21,27 @@
         },
         {
           "type": "string"
+        }
+      ]
+    },
+    "probabilities_of_effects": {
+      "type": "array",
+      "items": [
+        {
+          "type": "integer"
         },
         {
-          "type": "string"
+          "type": "integer"
         }
       ]
     }
   },
   "required": [
     "name",
-    "hp",
-    "attack",
-    "defense",
-    "speed",
-    "moves"
+    "power",
+    "accuracy",
+    "uses",
+    "effects",
+    "probabilities_of_effects"
   ]
 }
