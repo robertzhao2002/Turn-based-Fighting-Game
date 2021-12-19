@@ -4,6 +4,9 @@
     "name": {
       "type": "string"
     },
+    "type": {
+      "type": "string"
+    },
     "power": {
       "type": "integer"
     },
@@ -38,6 +41,7 @@
   },
   "required": [
     "name",
+    "type",
     "power",
     "accuracy",
     "uses",

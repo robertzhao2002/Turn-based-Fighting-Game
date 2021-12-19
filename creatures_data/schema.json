@@ -4,6 +4,17 @@
     "name": {
       "type": "string"
     },
+    "type": {
+      "type": "array",
+      "items": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
     "hp": {
       "type": "integer"
     },
@@ -33,6 +44,7 @@
   },
   "required": [
     "name",
+    "type",
     "hp",
     "attack",
     "defense",
