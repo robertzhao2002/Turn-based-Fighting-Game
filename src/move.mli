@@ -1,9 +1,17 @@
-type t =
-  | Damaging
-  | Status
+(** The type representing the move's type (e.g. Water, Fire, Magic). *)
+type move_type =
+  | Water
+  | Fire
+  | Magic
+
+type t
+(** The abstract type representing a creature that can be used. *)
 
 val name : t -> string
 (** [name m] is the name of move [m]. *)
+
+val move_type_of : t -> move_type
+(** [move_type_of m] is the type of move [m] (e.g. [Water], [Fire], [Magic], etc.). *)
 
 val power : t -> int
 (** [power m] is the base power of move [m]. This determines how much damage [m] can

@@ -1,14 +1,19 @@
 {
-  "name": "yell",
-  "power": 100,
-  "accuracy": 100,
-  "uses": 100,
-  "effects": [
-    "poison",
-    "confuse"
-  ],
-  "probabilities_of_effects": [
-    20,
-    30
+  "moves": [
+    {
+      "name": "yell",
+      "type": "water",
+      "power": 100,
+      "accuracy": 100,
+      "uses": 100,
+      "effects": [
+        "poison",
+        "confuse"
+      ],
+      "probabilities_of_effects": [
+        20,
+        30
+      ]
+    }
   ]
 }

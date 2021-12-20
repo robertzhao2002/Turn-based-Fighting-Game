@@ -1,51 +1,64 @@
 {
   "type": "object",
   "properties": {
-    "name": {
-      "type": "string"
-    },
-    "type": {
-      "type": "string"
-    },
-    "power": {
-      "type": "integer"
-    },
-    "accuracy": {
-      "type": "integer"
-    },
-    "uses": {
-      "type": "integer"
-    },
-    "effects": {
+    "moves": {
       "type": "array",
       "items": [
         {
-          "type": "string"
-        },
-        {
-          "type": "string"
-        }
-      ]
-    },
-    "probabilities_of_effects": {
-      "type": "array",
-      "items": [
-        {
-          "type": "integer"
-        },
-        {
-          "type": "integer"
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "power": {
+              "type": "integer"
+            },
+            "accuracy": {
+              "type": "integer"
+            },
+            "uses": {
+              "type": "integer"
+            },
+            "effects": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "probabilities_of_effects": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            }
+          },
+          "required": [
+            "name",
+            "type",
+            "power",
+            "accuracy",
+            "uses",
+            "effects",
+            "probabilities_of_effects"
+          ]
         }
       ]
     }
   },
   "required": [
-    "name",
-    "type",
-    "power",
-    "accuracy",
-    "uses",
-    "effects",
-    "probabilities_of_effects"
+    "moves"
   ]
 }

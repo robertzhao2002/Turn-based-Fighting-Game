@@ -1,12 +1,16 @@
 {
-  "name": "Jit",
-  "hp": 100,
-  "attack": 100,
-  "defense": 100,
-  "speed": 100,
-  "moves": [
-    "yell",
-    "glock",
-    "deez"
+  "creatures": [
+    {
+      "name": "Jit",
+      "hp": 100,
+      "attack": 100,
+      "defense": 100,
+      "speed": 100,
+      "moves": [
+        "yell",
+        "glock",
+        "deez"
+      ]
+    }
   ]
 }

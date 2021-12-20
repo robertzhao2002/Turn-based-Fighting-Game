@@ -1,54 +1,55 @@
 {
   "type": "object",
   "properties": {
-    "name": {
-      "type": "string"
-    },
-    "type": {
+    "creatures": {
       "type": "array",
       "items": [
         {
-          "type": "string"
-        },
-        {
-          "type": "string"
-        }
-      ]
-    },
-    "hp": {
-      "type": "integer"
-    },
-    "attack": {
-      "type": "integer"
-    },
-    "defense": {
-      "type": "integer"
-    },
-    "speed": {
-      "type": "integer"
-    },
-    "moves": {
-      "type": "array",
-      "items": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "string"
-        },
-        {
-          "type": "string"
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "hp": {
+              "type": "integer"
+            },
+            "attack": {
+              "type": "integer"
+            },
+            "defense": {
+              "type": "integer"
+            },
+            "speed": {
+              "type": "integer"
+            },
+            "moves": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "required": [
+            "name",
+            "hp",
+            "attack",
+            "defense",
+            "speed",
+            "moves"
+          ]
         }
       ]
     }
   },
   "required": [
-    "name",
-    "type",
-    "hp",
-    "attack",
-    "defense",
-    "speed",
-    "moves"
+    "creatures"
   ]
 }
