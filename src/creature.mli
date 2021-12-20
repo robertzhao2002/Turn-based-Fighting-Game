@@ -1,3 +1,10 @@
+(** The type representing the current status condition that the creature may be in. *)
+
+type status =
+  | Poison
+  | Confuse
+  | Paralyze
+
 type t
 (** The abstract type representing a creature that can be used. *)
 
@@ -18,3 +25,8 @@ val defense : t -> int
 val speed : t -> int
 (** [speed c] is the base speed of creature [c]. This determines who goes first in a given
     turn. *)
+
+val status_of : t -> status option
+(** [status_of c] is the current status effect on the creature. This can be: [Poison],
+    [Paralyze], or [Confuse]. Returns [None] if the creature has no status effect on it
+    currently. *)

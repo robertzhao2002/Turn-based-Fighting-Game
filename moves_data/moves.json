@@ -7,12 +7,20 @@
       "accuracy": 100,
       "uses": 100,
       "effects": [
-        "poison",
-        "confuse"
+        {
+          "effect": "poison",
+          "probability": 20
+        },
+        {
+          "effect": "confuse",
+          "probability": 30
+        }
       ],
-      "probabilities_of_effects": [
-        20,
-        30
+      "stat changes": [
+        {
+          "stat": "attack",
+          "change": 0.5
+        }
       ]
     }
   ]

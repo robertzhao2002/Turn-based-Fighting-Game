@@ -7,6 +7,10 @@ type move_type =
 type t
 (** The abstract type representing a creature that can be used. *)
 
+val init_move_with_name : string -> t
+(** [init_move_with_name n] creates a [Move] type with name [n]. It will have the maximum
+    number of uses. *)
+
 val name : t -> string
 (** [name m] is the name of move [m]. *)
 
@@ -18,10 +22,11 @@ val power : t -> int
     potentially do. Moves with higher base power will do more damage when used by the same
     creature. *)
 
-val accuracy : t -> int
-(** [accuracy m] is the base accuracy of move [m]. This determines how likely the move will hit
-    the target. If it hits the target, it will do damage based on the base power and base
-    attack stat of the creature. If it does not hit (misses), then 0 damage is done. *)
+val accuracy : t -> float
+(** [accuracy m] is the base accuracy of move [m], which is a floating point number between 0
+    and 1. This determines how likely the move will hit the target. If it hits the target, it
+    will do damage based on the base power and base attack stat of the creature. If it does not
+    hit (misses), then 0 damage is done. *)
 
 val uses : t -> int
 (** [uses m] is the number of times move [m] can be used in a battle. Each move has a

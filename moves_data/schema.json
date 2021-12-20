@@ -26,21 +26,54 @@
               "type": "array",
               "items": [
                 {
-                  "type": "string"
+                  "type": "object",
+                  "properties": {
+                    "effect": {
+                      "type": "string"
+                    },
+                    "probability": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "effect",
+                    "probability"
+                  ]
                 },
                 {
-                  "type": "string"
+                  "type": "object",
+                  "properties": {
+                    "effect": {
+                      "type": "string"
+                    },
+                    "probability": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "effect",
+                    "probability"
+                  ]
                 }
               ]
             },
-            "probabilities_of_effects": {
+            "stat changes": {
               "type": "array",
               "items": [
                 {
-                  "type": "integer"
-                },
-                {
-                  "type": "integer"
+                  "type": "object",
+                  "properties": {
+                    "stat": {
+                      "type": "string"
+                    },
+                    "change": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "stat",
+                    "change"
+                  ]
                 }
               ]
             }
@@ -52,7 +85,7 @@
             "accuracy",
             "uses",
             "effects",
-            "probabilities_of_effects"
+            "stat changes"
           ]
         }
       ]

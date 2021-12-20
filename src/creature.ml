@@ -1,3 +1,5 @@
+open Yojson.Basic.Util
+
 type status =
   | Poison
   | Confuse
@@ -9,7 +11,8 @@ type t = {
   attack : int;
   defense : int;
   speed : int;
-  status : status;
+  status : status option;
+  moves : Move.t list;
 }
 
 let name c = c.name
@@ -21,3 +24,5 @@ let attack c = c.attack
 let defense c = c.defense
 
 let speed c = c.speed
+
+let status_of c = c.status
