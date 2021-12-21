@@ -6,14 +6,9 @@ type effect =
   | Confuse of float
 
 type stat_change =
-  | Attack of float
-  | Defense of float
-  | Speed of float
-
-type move_variant =
-  | Damaging
-  | Status of effect
-  | StatChange of stat_change
+  | Attack of float * float * bool
+  | Defense of float * float * bool
+  | Speed of float * float * bool
 
 type move_type =
   | Water
@@ -31,7 +26,7 @@ type t = {
   base_accuracy : accuracy;
   uses : int;
   meffect : effect list;
-  mvariant : move_variant;
+  mstat_change : stat_change list;
 }
 
 let type_from_string = function
@@ -40,22 +35,44 @@ let type_from_string = function
   | "magic" -> Magic
   | _ -> raise Not_found
 
+let target_of_string = function
+  | "yourself" -> true
+  | "opponent" -> false
+  | _ -> raise Not_found
+
 let rec effect_from_json = function
   | [] -> []
   | h :: t ->
       let current_effect = to_assoc h in
       let effect_string = List.assoc "effect" current_effect |> to_string in
-      let effect_probability =
-        List.assoc "probability" current_effect |> to_int |> float_of_int
-      in
+      let effect_probability = List.assoc "probability" current_effect |> to_float in
       let effect =
         match effect_string with
-        | "poison" -> Poison (effect_probability /. 100.)
-        | "paralyze" -> Paralyze (effect_probability /. 100.)
-        | "confuse" -> Confuse (effect_probability /. 100.)
+        | "poison" -> Poison effect_probability
+        | "paralyze" -> Paralyze effect_probability
+        | "confuse" -> Confuse effect_probability
         | _ -> raise Not_found
       in
       effect :: effect_from_json t
+
+let rec stats_from_json = function
+  | [] -> []
+  | h :: t ->
+      let current_stat = to_assoc h in
+      let effect_string = List.assoc "stat" current_stat |> to_string in
+      let stat_change_amount = List.assoc "change" current_stat |> to_float in
+      let stat_change_probability = List.assoc "probability" current_stat |> to_float in
+      let stat_change_target =
+        List.assoc "target" current_stat |> to_string |> target_of_string
+      in
+      let effect =
+        match effect_string with
+        | "attack" -> Attack (stat_change_amount, stat_change_probability, stat_change_target)
+        | "defense" -> Defense (stat_change_amount, stat_change_probability, stat_change_target)
+        | "speed" -> Speed (stat_change_amount, stat_change_probability, stat_change_target)
+        | _ -> raise Not_found
+      in
+      effect :: stats_from_json t
 
 let accuracy_from_int = function
   | 1000 -> Guarantee
@@ -86,7 +103,7 @@ let init_move_with_name n =
     base_accuracy = List.assoc "accuracy" move_json_assoc |> to_int |> accuracy_from_int;
     uses = List.assoc "uses" move_json_assoc |> to_int;
     meffect = List.assoc "effects" move_json_assoc |> to_list |> effect_from_json;
-    mvariant = Damaging;
+    mstat_change = List.assoc "stat changes" move_json_assoc |> to_list |> stats_from_json;
   }
 
 let name m = m.name
@@ -101,3 +118,7 @@ let accuracy m =
   | Guarantee -> 1.
 
 let uses m = m.uses
+
+let effects m = m.meffect
+
+let stat_changes m = m.mstat_change

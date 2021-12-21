@@ -4,22 +4,30 @@
       "name": "yell",
       "type": "water",
       "power": 100,
-      "accuracy": 100,
-      "uses": 100,
+      "accuracy": 70,
+      "uses": 10,
       "effects": [
         {
           "effect": "poison",
-          "probability": 20
+          "probability": 0.2
         },
         {
           "effect": "confuse",
-          "probability": 30
+          "probability": 0.2
         }
       ],
       "stat changes": [
         {
           "stat": "attack",
-          "change": 0.5
+          "change": 0.5,
+          "probability": 0.5,
+          "target": "opponent"
+        },
+        {
+          "stat": "defense",
+          "change": 1.5,
+          "probability": 0.2,
+          "target": "yourself"
         }
       ]
     }

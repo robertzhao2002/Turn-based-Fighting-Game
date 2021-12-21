@@ -32,7 +32,7 @@
                       "type": "string"
                     },
                     "probability": {
-                      "type": "integer"
+                      "type": "number"
                     }
                   },
                   "required": [
@@ -47,7 +47,7 @@
                       "type": "string"
                     },
                     "probability": {
-                      "type": "integer"
+                      "type": "number"
                     }
                   },
                   "required": [
@@ -68,11 +68,42 @@
                     },
                     "change": {
                       "type": "number"
+                    },
+                    "probability": {
+                      "type": "number"
+                    },
+                    "target": {
+                      "type": "string"
                     }
                   },
                   "required": [
                     "stat",
-                    "change"
+                    "change",
+                    "probability",
+                    "target"
+                  ]
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "stat": {
+                      "type": "string"
+                    },
+                    "change": {
+                      "type": "number"
+                    },
+                    "probability": {
+                      "type": "number"
+                    },
+                    "target": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "stat",
+                    "change",
+                    "probability",
+                    "target"
                   ]
                 }
               ]

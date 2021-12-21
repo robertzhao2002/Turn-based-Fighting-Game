@@ -1,3 +1,36 @@
+(** The type representing the status effect a move can inflict, each binded with a floating
+    point number between 0 and 1 that represents the probability that the using a given move
+    will cause that given status effect to happen.
+
+    - [Poison]: takes 5% hp each turn
+    - [Paralyze]: 50% chance that the creature will not move for that given turn
+    - [Confuse]: 50% chance that the creature will attack themselves. *)
+type effect =
+  | Poison of float
+  | Paralyze of float
+  | Confuse of float
+
+(** The type representing possible increases or decreases to the base stats of a creature. The
+    first float in the tuple is a positive floating point number that represents the change
+    factor of that given base stat. The second float is a floating point number between 0 and 1
+    that represents the probability that a given move will cause the stat change. The bool in
+    the tuple represents the target of the stat change. [true] represents yourself, and [false]
+    represents your opponent.
+
+    Ex. [Attack (0.5, 0.3, false)] means a 30% chance to reduce the opponent's attack stat by
+    50%. *)
+type stat_change =
+  | Attack of float * float * bool
+  | Defense of float * float * bool
+  | Speed of float * float * bool
+
+(** The type representing the possible accuracies of a move: either a changing accuracy after
+    opponents may use accuracy-reducing moves, or [Guarantee], which means that a move will
+    always land, regarldess if anyone uses any accuracy/evasiveness-changing moves. *)
+type accuracy =
+  | Accuracy of float
+  | Guarantee
+
 (** The type representing the move's type (e.g. Water, Fire, Magic). *)
 type move_type =
   | Water
@@ -33,3 +66,10 @@ val uses : t -> int
     predetermined number of uses. Every time u use [m], this number decrements. Whenever
     [uses m] is 0, then [m] cannot be used anymore. When a creature has no more moves to use,
     it automatically dies, even if it is at full hp. *)
+
+val effects : t -> effect list
+(** [effects m] are the possible status effects, along with their probabilities in a list. *)
+
+val stat_changes : t -> stat_change list
+(** [stat_changes m] are the possible base stat changes, along with their amounts,
+    probabilities, and targets in a list. *)
