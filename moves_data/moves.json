@@ -5,7 +5,7 @@
       "type": "water",
       "power": 100,
       "accuracy": 70,
-      "uses": 10,
+      "uses": 2,
       "effects": [
         {
           "effect": "poison",

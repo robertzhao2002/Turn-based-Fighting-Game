@@ -29,6 +29,8 @@ type t = {
   mstat_change : stat_change list;
 }
 
+exception NoMoreUses
+
 let type_from_string = function
   | "water" -> Water
   | "fire" -> Fire
@@ -78,7 +80,7 @@ let accuracy_from_int = function
   | 1000 -> Guarantee
   | a -> Accuracy (float_of_int a /. 100.)
 
-let rec move_json f =
+let move_json f =
   let json =
     try Yojson.Basic.from_file f with
     | Sys_error _ -> raise Not_found
@@ -89,7 +91,7 @@ let rec move_json_with_name n = function
   | [] -> raise Not_found
   | h :: t ->
       let current_move_assoc = to_assoc h in
-      if List.assoc "name" current_move_assoc |> to_string = n then to_assoc h
+      if List.assoc "name" current_move_assoc |> to_string = n then current_move_assoc
       else move_json_with_name n t
 
 let init_move_with_name n =
@@ -122,3 +124,8 @@ let uses m = m.uses
 let effects m = m.meffect
 
 let stat_changes m = m.mstat_change
+
+let use m =
+  match m.uses with
+  | 0 -> raise NoMoreUses
+  | u -> { m with uses = u - 1 }

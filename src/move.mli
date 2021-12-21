@@ -40,6 +40,8 @@ type move_type =
 type t
 (** The abstract type representing a creature that can be used. *)
 
+exception NoMoreUses
+
 val init_move_with_name : string -> t
 (** [init_move_with_name n] creates a [Move] type with name [n]. It will have the maximum
     number of uses. *)
@@ -73,3 +75,7 @@ val effects : t -> effect list
 val stat_changes : t -> stat_change list
 (** [stat_changes m] are the possible base stat changes, along with their amounts,
     probabilities, and targets in a list. *)
+
+val use : t -> t
+(** [use m] is the state of the move after one use. Its [uses] property will decrease by 1.
+    This function raises [NoMoreUses] if there are no uses left. *)

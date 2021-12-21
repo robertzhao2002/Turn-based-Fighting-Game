@@ -8,6 +8,11 @@ type status =
 type t
 (** The abstract type representing a creature that can be used. *)
 
+val init_creature_with_name : string -> t
+(** [init_creature_with_name n] creates a [Creature] type with name [n]. It has no status
+    condition, and all of its base stats are unchanged based on [data/creatures.json]. It has
+    full hp. *)
+
 val name : t -> string
 (** [name c] is the name of creature [c]. *)
 
