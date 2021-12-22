@@ -2,40 +2,40 @@
   "creatures": [
     {
       "name": "Jit",
-      "hp": 100,
-      "attack": 105,
-      "defense": 110,
-      "speed": 95,
+      "hp": 100.0,
+      "attack": 105.0,
+      "defense": 110.0,
+      "speed": 95.0,
       "moves": [
         "yell"
       ]
     },
     {
       "name": "Spider",
-      "hp": 100,
-      "attack": 105,
-      "defense": 110,
-      "speed": 95,
+      "hp": 100.0,
+      "attack": 105.0,
+      "defense": 110.0,
+      "speed": 95.0,
       "moves": [
         "yell"
       ]
     },
     {
       "name": "Deez Nuts",
-      "hp": 69,
-      "attack": 69,
-      "defense": 69,
-      "speed": 69,
+      "hp": 69.0,
+      "attack": 69.0,
+      "defense": 69.0,
+      "speed": 69.0,
       "moves": [
         "yell"
       ]
     },
     {
       "name": "Metty Betty",
-      "hp": 100,
-      "attack": 105,
-      "defense": 110,
-      "speed": 95,
+      "hp": 100.0,
+      "attack": 105.0,
+      "defense": 110.0,
+      "speed": 95.0,
       "moves": [
         "yell"
       ]

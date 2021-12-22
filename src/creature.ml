@@ -1,6 +1,8 @@
 open Yojson.Basic.Util
 open Move
 
+exception InvalidMove
+
 type status =
   | Poison
   | Confuse
@@ -8,11 +10,11 @@ type status =
 
 type t = {
   name : string;
-  hp : int;
-  attack : int;
-  defense : int;
-  speed : int;
-  status : status option;
+  hp : float;
+  attack : float;
+  defense : float;
+  speed : float;
+  status : status list;
   moves : Move.t list;
 }
 
@@ -45,11 +47,11 @@ let init_creature_with_name n =
   let c_json = creature_json_assoc n in
   {
     name = n;
-    hp = List.assoc "hp" c_json |> to_int;
-    attack = List.assoc "attack" c_json |> to_int;
-    defense = List.assoc "defense" c_json |> to_int;
-    speed = List.assoc "speed" c_json |> to_int;
-    status = None;
+    hp = List.assoc "hp" c_json |> to_float;
+    attack = List.assoc "attack" c_json |> to_float;
+    defense = List.assoc "defense" c_json |> to_float;
+    speed = List.assoc "speed" c_json |> to_float;
+    status = [];
     moves = List.assoc "moves" c_json |> to_list |> initialize_creature_moves [];
   }
 
@@ -57,20 +59,40 @@ let name c = c.name
 
 let hp c =
   let c_json = creature_json_assoc c.name in
-  List.assoc "hp" c_json |> to_int
+  List.assoc "hp" c_json |> to_float
 
 let attack c =
   let c_json = creature_json_assoc c.name in
-  List.assoc "attack" c_json |> to_int
+  List.assoc "attack" c_json |> to_float
 
 let defense c =
   let c_json = creature_json_assoc c.name in
-  List.assoc "defense" c_json |> to_int
+  List.assoc "defense" c_json |> to_float
 
 let speed c =
   let c_json = creature_json_assoc c.name in
-  List.assoc "speed" c_json |> to_int
+  List.assoc "speed" c_json |> to_float
 
 let status_of c = c.status
 
-let dead c = c.hp <= 0
+let dead c = c.hp <= 0.
+
+let rec has_status s = function
+  | [] -> false
+  | h :: t -> if h = s then true else has_status s t
+
+let inflict_status c s = if has_status s c.status then c else { c with status = s :: c.status }
+
+let inflict_damage c d =
+  let damaged = { c with hp = c.hp -. d } in
+  match dead damaged with
+  | true -> { damaged with hp = 0. }
+  | false -> damaged
+
+let rec change_stats c = function
+  | [] -> c
+  | h :: t -> (
+      match h with
+      | Attack (_, prop, _) -> { c with attack = c.attack *. prop }
+      | Defense (_, prop, _) -> { c with defense = c.defense *. prop }
+      | Speed (_, prop, _) -> { c with attack = c.defense *. prop })

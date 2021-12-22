@@ -1,3 +1,6 @@
+exception NoMoreUses
+(** [NoMoreUses] is raised when someone attempts to use a move with [uses = 0]. *)
+
 (** The type representing the status effect a move can inflict, each binded with a floating
     point number between 0 and 1 that represents the probability that the using a given move
     will cause that given status effect to happen.
@@ -49,8 +52,6 @@ type t = {
   mstat_change : stat_change list;
 }
 (** The type representing the current state of a move. *)
-
-exception NoMoreUses
 
 val init_move_with_name : string -> t
 (** [init_move_with_name n] creates a [Move] type with name [n]. It will have the maximum
