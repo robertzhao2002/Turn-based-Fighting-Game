@@ -25,6 +25,9 @@ let creature_speed_test name input expected_output =
 let creature_status_test name input expected_output =
   name >:: fun _ -> Creature.status_of input |> assert_equal expected_output
 
+let creature_dead_test name input expected_output =
+  name >:: fun _ -> Creature.dead input |> assert_equal expected_output
+
 let jit_tests =
   [
     creature_name_test "Jit's name is Jit" jit_test "Jit";
@@ -33,6 +36,7 @@ let jit_tests =
     creature_defense_test "Jit has base defense 110" jit_test 110;
     creature_speed_test "Jit has base speed 95" jit_test 95;
     creature_status_test "Jit has no status currently" jit_test None;
+    creature_dead_test "Jit is not dead" jit_test false;
   ]
 
 let suite = "test suite for Move module" >::: List.flatten [ jit_tests ]

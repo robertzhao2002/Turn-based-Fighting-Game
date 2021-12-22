@@ -1,12 +1,21 @@
 (** The type representing the current status condition that the creature may be in. *)
-
 type status =
   | Poison
   | Confuse
   | Paralyze
 
-type t
-(** The abstract type representing a creature that can be used. *)
+type t = {
+  name : string;
+  hp : int;
+  attack : int;
+  defense : int;
+  speed : int;
+  status : status option;
+  moves : Move.t list;
+}
+(** The type representing the current state of a creature. The functions below all represent
+    its base stats, but calling a property of this record will give the current value (which
+    could change due to stat changing moves). *)
 
 val init_creature_with_name : string -> t
 (** [init_creature_with_name n] creates a [Creature] type with name [n]. It has no status
@@ -35,3 +44,8 @@ val status_of : t -> status option
 (** [status_of c] is the current status effect on the creature. This can be: [Poison],
     [Paralyze], or [Confuse]. Returns [None] if the creature has no status effect on it
     currently. *)
+
+val dead : t -> bool
+(** [dead c] is whether or not the creature is dead. It is dead if its [hp] stat is greater
+    than 0. Once its [hp] becomes 0, it is dead and can be revived 1 time to half health during
+    battle. *)

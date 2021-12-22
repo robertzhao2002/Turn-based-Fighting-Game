@@ -3,10 +3,12 @@
     will cause that given status effect to happen.
 
     - [Poison]: takes 5% hp each turn
+    - [Stun]: Guaranteed to not attack for a single turn
     - [Paralyze]: 50% chance that the creature will not move for that given turn
     - [Confuse]: 50% chance that the creature will attack themselves. *)
 type effect =
   | Poison of float
+  | Stun of float
   | Paralyze of float
   | Confuse of float
 
@@ -37,8 +39,16 @@ type move_type =
   | Fire
   | Magic
 
-type t
-(** The abstract type representing a creature that can be used. *)
+type t = {
+  name : string;
+  mtype : move_type;
+  base_power : int;
+  base_accuracy : accuracy;
+  uses : int;
+  meffect : effect list;
+  mstat_change : stat_change list;
+}
+(** The type representing the current state of a move. *)
 
 exception NoMoreUses
 

@@ -2,6 +2,7 @@ open Yojson.Basic.Util
 
 type effect =
   | Poison of float
+  | Stun of float
   | Paralyze of float
   | Confuse of float
 
@@ -51,6 +52,7 @@ let rec effect_from_json = function
       let effect =
         match effect_string with
         | "poison" -> Poison effect_probability
+        | "stun" -> Stun effect_probability
         | "paralyze" -> Paralyze effect_probability
         | "confuse" -> Confuse effect_probability
         | _ -> raise Not_found
@@ -94,36 +96,49 @@ let rec move_json_with_name n = function
       if List.assoc "name" current_move_assoc |> to_string = n then current_move_assoc
       else move_json_with_name n t
 
+let move_json_assoc n =
+  move_json_with_name n (move_json ("moves_data" ^ Filename.dir_sep ^ "moves.json"))
+
 let init_move_with_name n =
-  let move_json_assoc =
-    move_json_with_name n (move_json ("moves_data" ^ Filename.dir_sep ^ "moves.json"))
-  in
+  let m_json = move_json_assoc n in
   {
     name = n;
-    mtype = List.assoc "type" move_json_assoc |> to_string |> type_from_string;
-    base_power = List.assoc "power" move_json_assoc |> to_int;
-    base_accuracy = List.assoc "accuracy" move_json_assoc |> to_int |> accuracy_from_int;
-    uses = List.assoc "uses" move_json_assoc |> to_int;
-    meffect = List.assoc "effects" move_json_assoc |> to_list |> effect_from_json;
-    mstat_change = List.assoc "stat changes" move_json_assoc |> to_list |> stats_from_json;
+    mtype = List.assoc "type" m_json |> to_string |> type_from_string;
+    base_power = List.assoc "power" m_json |> to_int;
+    base_accuracy = List.assoc "accuracy" m_json |> to_int |> accuracy_from_int;
+    uses = List.assoc "uses" m_json |> to_int;
+    meffect = List.assoc "effects" m_json |> to_list |> effect_from_json;
+    mstat_change = List.assoc "stat changes" m_json |> to_list |> stats_from_json;
   }
 
 let name m = m.name
 
-let move_type_of m = m.mtype
+let move_type_of m =
+  let m_json = move_json_assoc m.name in
+  List.assoc "type" m_json |> to_string |> type_from_string
 
-let power m = m.base_power
+let power m =
+  let m_json = move_json_assoc m.name in
+  List.assoc "power" m_json |> to_int
 
 let accuracy m =
-  match m.base_accuracy with
+  let m_json = move_json_assoc m.name in
+  let accuracy = List.assoc "accuracy" m_json |> to_int |> accuracy_from_int in
+  match accuracy with
   | Accuracy a -> a
   | Guarantee -> 1.
 
-let uses m = m.uses
+let uses m =
+  let m_json = move_json_assoc m.name in
+  List.assoc "uses" m_json |> to_int
 
-let effects m = m.meffect
+let effects m =
+  let m_json = move_json_assoc m.name in
+  List.assoc "effects" m_json |> to_list |> effect_from_json
 
-let stat_changes m = m.mstat_change
+let stat_changes m =
+  let m_json = move_json_assoc m.name in
+  List.assoc "stat changes" m_json |> to_list |> stats_from_json
 
 let use m =
   match m.uses with

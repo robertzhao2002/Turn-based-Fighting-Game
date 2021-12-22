@@ -31,6 +31,9 @@ let move_effects_test name input expected_output =
 let move_stat_changes_test name input expected_output =
   name >:: fun _ -> Move.stat_changes input |> assert_equal expected_output
 
+let move_used_test name input expected_output =
+  name >:: fun _ -> input.uses |> assert_equal expected_output ~printer:string_of_int
+
 let yell_tests =
   [
     move_name_test "Name of Move is Yell" yell_test "yell";
@@ -38,7 +41,7 @@ let yell_tests =
     move_power_test "Yell has base power of 100" yell_test 100;
     move_accuracy_test "Yell has base accuracy of 70%" yell_test 0.7;
     move_uses_test "Yell has 2 uses" yell_test 2;
-    move_uses_test "Yell used twice has 0 uses left" yell_2 0;
+    move_used_test "Yell used twice has 0 uses left" yell_2 0;
     no_more_uses_exn_test "Yell has no more uses" yell_2;
     move_effects_test "Yell can poison and confuse 20 percent of the time" yell_test
       [ Poison 0.2; Confuse 0.2 ];
