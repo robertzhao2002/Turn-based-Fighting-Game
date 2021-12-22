@@ -7,7 +7,8 @@ exception NoMoreUses
 
     - [Poison]: takes 5% hp each turn
     - [Stun]: Guaranteed to not attack for a single turn
-    - [Paralyze]: 50% chance that the creature will not move for that given turn
+    - [Paralyze]: 50% chance that the creature will not move for that given turn. Speed is
+      permanently reduced by 25%.
     - [Confuse]: 50% chance that the creature will attack themselves. *)
 type effect =
   | Poison of float

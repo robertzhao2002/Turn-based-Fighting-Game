@@ -10,7 +10,8 @@ exception NoCreaturesDead
 
 type trainer_turn =
   | Switch of Creature.t
-  | Attack of Creature.t * Move.t
+  | MoveUsed of Creature.t * Move.t
+  | Revive of Creature.t
   | Surrender
 
 type t = {
@@ -28,6 +29,8 @@ let all_alive trainer =
   dead trainer.creature1 |> not
   && dead trainer.creature2 |> not
   && dead trainer.creature3 |> not
+
+let use_move trainer creature move = MoveUsed (creature, move)
 
 let revive (trainer : t) (creature : Creature.t) =
   match trainer.revive_used with
@@ -75,3 +78,5 @@ let revive (trainer : t) (creature : Creature.t) =
           }
         else raise (CreatureNotDead trainer.creature3)
       else raise InvalidCreature
+
+let surrender t = Surrender

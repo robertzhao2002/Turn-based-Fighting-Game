@@ -15,7 +15,8 @@ exception NoCreaturesDead
 
 type trainer_turn =
   | Switch of Creature.t
-  | Attack of Creature.t * Move.t
+  | MoveUsed of Creature.t * Move.t
+  | Revive of Creature.t
   | Surrender
 
 type t
@@ -25,8 +26,14 @@ val init_trainer : string -> Creature.t -> Creature.t -> Creature.t -> t
     and has 1 revive initially. All creatures have full health, no status effects, and no stat
     changes. All moves have maximum uses. *)
 
+val use_move : t -> Creature.t -> Move.t -> trainer_turn
+(** [use_move t c m] is the result of trainer [t] using move [m] of creature [c]. *)
+
 val revive : t -> Creature.t -> t
 (** [revive t c] revives creature [c] if [c] has 0 hp (dead) and trainer [t] has a revive left.
     When a creature is revived, it is essentially like new except it has half its original
     health. All of its moves have maximum uses, status conditions are cleared, and all stat
     changes are reset. Reviving uses up a turn. *)
+
+val surrender : t -> trainer_turn
+(** [surrender t] is the turn of trainer [t] when they choose to surrender. *)

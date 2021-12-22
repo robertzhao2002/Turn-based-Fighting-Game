@@ -1,12 +1,13 @@
 open Yojson.Basic.Util
 open Move
+open Random
 
 exception InvalidMove
 
 type status =
-  | Poison
-  | Confuse
   | Paralyze
+  | Confuse of int
+  | Poison
 
 type t = {
   name : string;
@@ -73,15 +74,49 @@ let speed c =
   let c_json = creature_json_assoc c.name in
   List.assoc "speed" c_json |> to_float
 
-let status_of c = c.status
-
 let dead c = c.hp <= 0.
+
+let compare_status s1 s2 =
+  match s2 with
+  | Paralyze -> begin
+      match s1 with
+      | Paralyze -> 0
+      | _ -> 1
+    end
+  | Confuse c -> begin
+      match s1 with
+      | Paralyze -> -1
+      | Poison -> 1
+      | _ -> 0
+    end
+  | Poison -> begin
+      match s1 with
+      | Poison -> 0
+      | _ -> -1
+    end
 
 let rec has_status s = function
   | [] -> false
-  | h :: t -> if h = s then true else has_status s t
+  | h :: t -> begin
+      match (h, s) with
+      | Paralyze, Paralyze
+      | Confuse _, Confuse _
+      | Poison, Poison ->
+          true
+      | _ -> has_status s t
+    end
 
-let inflict_status c s = if has_status s c.status then c else { c with status = s :: c.status }
+let inflict_status c s =
+  if has_status s c.status then c
+  else
+    match s with
+    | Paralyze ->
+        {
+          c with
+          speed = c.speed *. 0.75;
+          status = List.sort_uniq compare_status (s :: c.status);
+        }
+    | _ -> { c with status = List.sort_uniq compare_status (s :: c.status) }
 
 let inflict_damage c d =
   let damaged = { c with hp = c.hp -. d } in
@@ -96,3 +131,32 @@ let rec change_stats c = function
       | Attack (_, prop, _) -> { c with attack = c.attack *. prop }
       | Defense (_, prop, _) -> { c with defense = c.defense *. prop }
       | Speed (_, prop, _) -> { c with attack = c.defense *. prop })
+
+let status_of c = List.sort_uniq compare_status c.status
+
+let rec remove_confusion acc = function
+  | []
+  | [ Confuse _ ] ->
+      List.sort compare_status acc
+  | Confuse _ :: t -> remove_confusion acc t
+  | h :: t -> remove_confusion (h :: acc) t
+
+let rec apply_status_effect c = function
+  | [] -> c
+  | Paralyze :: t -> begin
+      match Random.bool () with
+      | false -> apply_status_effect c t
+      | true -> apply_status_effect c (remove_confusion [] t)
+    end
+  | Confuse turns :: t -> (
+      let prob_snap_out = if turns < 5 then 0.5 +. (float_of_int turns *. 0.1) else 0.999 in
+      let random_snap_out = Random.float 1. in
+      if random_snap_out < prob_snap_out then { c with status = remove_confusion [] c.status }
+      else
+        match Random.bool () with
+        | true -> { c with hp = (if 0.9 *. c.hp <= 0.001 then 0. else 0.9 *. c.hp) }
+        | false -> c)
+  | Poison :: t ->
+      apply_status_effect
+        { c with hp = (if 0.95 *. c.hp <= 0.001 then 0. else 0.95 *. c.hp) }
+        t

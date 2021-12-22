@@ -40,6 +40,8 @@ let jit_tests =
     creature_dead_test "Jit is not dead" jit_test false;
   ]
 
-let suite = "test suite for Move module" >::: List.flatten [ jit_tests ]
+let status_tests = []
+
+let suite = "test suite for Move module" >::: List.flatten [ jit_tests; status_tests ]
 
 let _ = run_test_tt_main suite

@@ -2,11 +2,17 @@ exception InvalidMove
 (** [InvalidMove] is raised when a creature uses a non-existent move, or a move that isn't in
     its moveset. *)
 
-(** The type representing the current status condition that the creature may be in. *)
+(** The type representing the current status condition that the creature may be in.
+
+    Status conditions are evaluated this way:
+
+    - [Paralyze]: 50% does not do anything. In this case, skip confusion, and apply poison
+      damage.
+    - [Confuse]: If the creature is paralyzed and it got the 50% move *)
 type status =
-  | Poison
-  | Confuse
   | Paralyze
+  | Confuse of int
+  | Poison
 
 type t = {
   name : string;
@@ -46,8 +52,12 @@ val speed : t -> float
 
 val status_of : t -> status list
 (** [status_of c] is the current status effect on the creature. This can be: [Poison],
-    [Paralyze], [Confuse], or any combination of them. Returns the empty list if the creature
-    has no status effect on it currently. *)
+    [Paralyze], [Confuse], or any combination of them. The list will be sorted in the order
+    that these status conditions are applied onto the creature.
+
+    [\[Paralyze; Confuse; Poison\]] is the sorted order if a creature has all 3 conditions.
+
+    Returns the empty list if the creature has no status effect on it currently. *)
 
 val dead : t -> bool
 (** [dead c] is whether or not the creature is dead. It is dead if its [hp] stat is greater
@@ -64,3 +74,4 @@ val inflict_damage : t -> float -> t
     die ([d > c.hp]), then return [c] with 0 hp. *)
 
 val change_stats : t -> Move.stat_change list -> t
+(** [change_stats c s] changes creature [c]'s stats by the amounts given in [s]. *)
