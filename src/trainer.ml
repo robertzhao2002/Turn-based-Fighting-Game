@@ -43,7 +43,7 @@ let revive (trainer : t) (creature : Creature.t) =
                 hp = hp trainer.creature2 / 2;
               };
           }
-        else raise (CreatureNotDead trainer.creature1)
+        else raise (CreatureNotDead trainer.creature2)
       else if revived_name = c3name then
         if dead trainer.creature3 then
           {
@@ -54,5 +54,5 @@ let revive (trainer : t) (creature : Creature.t) =
                 hp = hp trainer.creature3 / 2;
               };
           }
-        else raise (CreatureNotDead trainer.creature1)
+        else raise (CreatureNotDead trainer.creature3)
       else raise NoCreaturesDead
