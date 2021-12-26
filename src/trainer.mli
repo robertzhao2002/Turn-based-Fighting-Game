@@ -14,7 +14,7 @@ exception NoCreaturesDead
     creatures are dead. *)
 
 type trainer_turn =
-  | Switch of Creature.t
+  | Switch of Creature.t * Creature.t
   | MoveUsed of Creature.t * Move.t
   | Revive of Creature.t
   | Surrender
@@ -26,14 +26,34 @@ val init_trainer : string -> Creature.t -> Creature.t -> Creature.t -> t
     and has 1 revive initially. All creatures have full health, no status effects, and no stat
     changes. All moves have maximum uses. *)
 
-val use_move : t -> Creature.t -> Move.t -> trainer_turn
+val name : t -> string
+(** [name t] is the name of trainer [t]. *)
+
+val all_dead : t -> bool
+(** [all_dead t] is whether or not all 3 of trainer [t]'s creatures are dead. If any one of
+    them have more than 0 hp, then this function returns [false]. *)
+
+val creature_of : t -> Creature.t
+(** [creature_of t] is the first creature of trainer [t]. It is the creature that is currently
+    on the battle environment. *)
+
+val has_creature : t -> Creature.t -> bool
+(** [has_creature t c] is [true] if [c] is either [t.creature1], [t.creature2], or
+    [t.creature3]. It returns [false] otherwise. *)
+
+val use_move : t -> Creature.t -> Move.t -> trainer_turn * t
 (** [use_move t c m] is the result of trainer [t] using move [m] of creature [c]. *)
 
-val revive : t -> Creature.t -> t
+val switch : t -> Creature.t -> Creature.t -> trainer_turn * t
+(** [switch t c1 c2] is the result of trainer [t] switching between creature [c1] and creature
+    [c2]. [c2] is now on the battlefield, and [c1]'s health is unchanged. [c1] will no longer
+    be confused, all stat changes are reset, but poison/paralysis remains. *)
+
+val revive : t -> Creature.t -> trainer_turn * t
 (** [revive t c] revives creature [c] if [c] has 0 hp (dead) and trainer [t] has a revive left.
     When a creature is revived, it is essentially like new except it has half its original
     health. All of its moves have maximum uses, status conditions are cleared, and all stat
     changes are reset. Reviving uses up a turn. *)
 
-val surrender : t -> trainer_turn
+val surrender : t -> trainer_turn * t
 (** [surrender t] is the turn of trainer [t] when they choose to surrender. *)

@@ -13,11 +13,12 @@ let move_type_test name input expected_output =
   name >:: fun _ -> Move.move_type_of input |> assert_equal expected_output
 
 let move_power_test name input expected_output =
-  name >:: fun _ -> Move.power input |> assert_equal expected_output ~printer:string_of_int
+  name >:: fun _ ->
+  Move.base_power input |> assert_equal expected_output ~printer:string_of_int
 
 let move_accuracy_test name input expected_output =
   name >:: fun _ ->
-  Move.accuracy input |> assert_equal expected_output ~printer:string_of_float
+  Move.base_accuracy input |> assert_equal expected_output ~printer:string_of_float
 
 let move_uses_test name input expected_output =
   name >:: fun _ -> Move.uses input |> assert_equal expected_output ~printer:string_of_int

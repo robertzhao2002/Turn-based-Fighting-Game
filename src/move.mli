@@ -46,8 +46,8 @@ type move_type =
 type t = {
   name : string;
   mtype : move_type;
-  base_power : int;
-  base_accuracy : accuracy;
+  power : int;
+  accuracy : accuracy;
   uses : int;
   meffect : effect list;
   mstat_change : stat_change list;
@@ -64,16 +64,16 @@ val name : t -> string
 val move_type_of : t -> move_type
 (** [move_type_of m] is the type of move [m] (e.g. [Water], [Fire], [Magic], etc.). *)
 
-val power : t -> int
-(** [power m] is the base power of move [m]. This determines how much damage [m] can
+val base_power : t -> int
+(** [base_power m] is the base power of move [m]. This determines how much damage [m] can
     potentially do. Moves with higher base power will do more damage when used by the same
     creature. *)
 
-val accuracy : t -> float
-(** [accuracy m] is the base accuracy of move [m], which is a floating point number between 0
-    and 1. This determines how likely the move will hit the target. If it hits the target, it
-    will do damage based on the base power and base attack stat of the creature. If it does not
-    hit (misses), then 0 damage is done. *)
+val base_accuracy : t -> float
+(** [base_accuracy m] is the base accuracy of move [m], which is a floating point number
+    between 0 and 1. This determines how likely the move will hit the target. If it hits the
+    target, it will do damage based on the base power and base attack stat of the creature. If
+    it does not hit (misses), then 0 damage is done. *)
 
 val uses : t -> int
 (** [uses m] is the number of times move [m] can be used in a battle. Each move has a

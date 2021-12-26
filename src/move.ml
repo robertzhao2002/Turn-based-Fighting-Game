@@ -23,8 +23,8 @@ type accuracy =
 type t = {
   name : string;
   mtype : move_type;
-  base_power : int;
-  base_accuracy : accuracy;
+  power : int;
+  accuracy : accuracy;
   uses : int;
   meffect : effect list;
   mstat_change : stat_change list;
@@ -104,8 +104,8 @@ let init_move_with_name n =
   {
     name = n;
     mtype = List.assoc "type" m_json |> to_string |> type_from_string;
-    base_power = List.assoc "power" m_json |> to_int;
-    base_accuracy = List.assoc "accuracy" m_json |> to_int |> accuracy_from_int;
+    power = List.assoc "power" m_json |> to_int;
+    accuracy = List.assoc "accuracy" m_json |> to_int |> accuracy_from_int;
     uses = List.assoc "uses" m_json |> to_int;
     meffect = List.assoc "effects" m_json |> to_list |> effect_from_json;
     mstat_change = List.assoc "stat changes" m_json |> to_list |> stats_from_json;
@@ -117,11 +117,11 @@ let move_type_of m =
   let m_json = move_json_assoc m.name in
   List.assoc "type" m_json |> to_string |> type_from_string
 
-let power m =
+let base_power m =
   let m_json = move_json_assoc m.name in
   List.assoc "power" m_json |> to_int
 
-let accuracy m =
+let base_accuracy m =
   let m_json = move_json_assoc m.name in
   let accuracy = List.assoc "accuracy" m_json |> to_int |> accuracy_from_int in
   match accuracy with
