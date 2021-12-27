@@ -78,6 +78,10 @@ val inflict_status : t -> status -> t
     before, it is added to its list of status conditions. If it already has [s], nothing is
     changed. *)
 
+val apply_status_effects : t -> status list -> t
+(** [apply_status_effects c s] is creature [c] after status effects [s] are applied to it at
+    the end or beginning of the turn. *)
+
 val inflict_damage : t -> float -> t
 (** [inflict_damage c d] is creature [c] with [d] less hp. If subtracting [d] hp causes [d] to
     die ([d > c.hp]), then return [c] with 0 hp. *)

@@ -171,22 +171,38 @@ let reset_stats creature = function
         evasiveness = 1.;
       }
 
-let rec apply_status_effect c = function
+let rec inc_confusion_turns_tr acc = function
+  | [] -> List.sort compare_status acc
+  | [ Confuse turns ] -> List.sort compare_status (Confuse (turns + 1) :: acc)
+  | Confuse turns :: t -> inc_confusion_turns_tr (Confuse (turns + 1) :: acc) t
+  | h :: t -> inc_confusion_turns_tr (h :: acc) t
+
+let inc_confusion_turns = inc_confusion_turns_tr []
+
+let rec apply_status_effects c = function
   | [] -> c
   | Paralyze :: t -> begin
       match Random.bool () with
-      | false -> apply_status_effect c t
-      | true -> apply_status_effect c (remove_confusion t)
+      | false -> apply_status_effects c t
+      | true -> apply_status_effects c (remove_confusion t)
     end
   | Confuse turns :: t -> (
       let prob_snap_out = if turns < 5 then 0.5 +. (float_of_int turns *. 0.1) else 0.999 in
       let random_snap_out = Random.float 1. in
-      if random_snap_out < prob_snap_out then { c with status = remove_confusion c.status }
+      if random_snap_out < prob_snap_out then
+        apply_status_effects { c with status = remove_confusion c.status } t
       else
+        let new_c_inc_confuse_turns = { c with status = inc_confusion_turns c.status } in
         match Random.bool () with
-        | true -> { c with hp = (if 0.9 *. c.hp <= 0.001 then 0. else 0.9 *. c.hp) }
-        | false -> c)
+        | true ->
+            apply_status_effects
+              {
+                new_c_inc_confuse_turns with
+                hp = (if 0.9 *. c.hp <= 0.001 then 0. else 0.9 *. c.hp);
+              }
+              t
+        | false -> apply_status_effects new_c_inc_confuse_turns t)
   | Poison :: t ->
-      apply_status_effect
+      apply_status_effects
         { c with hp = (if 0.95 *. c.hp <= 0.001 then 0. else 0.95 *. c.hp) }
         t

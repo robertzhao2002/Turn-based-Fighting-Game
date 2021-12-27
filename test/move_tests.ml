@@ -58,6 +58,7 @@ let nutty_tests =
     move_power_test "Nutty has base power of 50" nutty 50;
     move_accuracy_test "Nutty has base accuracy of 100% (Guarantee)" nutty 1.;
     move_uses_test "Nutty has 5 uses" nutty 5;
+    no_more_uses_exn_test "Nutty has no more uses" nutty_5;
     move_effects_test "Nutty can paralyze 10% of the time" nutty [ Paralyze 0.1 ];
     move_stat_changes_test
       "Nutty lowers opponent's accuracy by 10% and improves user's evasiveness by 20%." nutty
