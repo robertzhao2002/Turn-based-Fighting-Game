@@ -34,30 +34,26 @@
     {
       "name": "nutty",
       "type": "magic",
-      "power": 100,
-      "accuracy": 70,
-      "uses": 2,
+      "power": 50,
+      "accuracy": 1000,
+      "uses": 5,
       "effects": [
         {
-          "effect": "poison",
-          "probability": 0.2
-        },
-        {
-          "effect": "confuse",
-          "probability": 0.2
+          "effect": "paralyze",
+          "probability": 0.1
         }
       ],
       "stat changes": [
         {
-          "stat": "attack",
-          "change": 0.5,
-          "probability": 0.5,
+          "stat": "accuracy",
+          "change": 0.9,
+          "probability": 0.2,
           "target": "opponent"
         },
         {
-          "stat": "defense",
-          "change": 1.5,
-          "probability": 0.2,
+          "stat": "evasiveness",
+          "change": 1.2,
+          "probability": 0.1,
           "target": "yourself"
         }
       ]

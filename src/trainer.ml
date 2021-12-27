@@ -48,7 +48,8 @@ let switch trainer creature1 creature2 =
   let trainer_has_creature = has_creature trainer in
   if trainer_has_creature creature1 && trainer_has_creature creature2 then
     ( Switch (creature1, creature2),
-      { trainer with creature1 = creature2; creature2 = creature1 } )
+      { trainer with creature1 = creature2; creature2 = Creature.reset_stats creature1 true }
+    )
   else raise InvalidSwitch
 
 let revive (trainer : t) (creature : Creature.t) =

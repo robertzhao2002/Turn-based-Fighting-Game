@@ -17,6 +17,8 @@ type t = {
   speed : float;
   status : status list;
   moves : Move.t list;
+  accuracy : float;
+  evasiveness : float;
 }
 
 let rec initialize_creature_moves acc = function
@@ -54,6 +56,8 @@ let init_creature_with_name n =
     speed = List.assoc "speed" c_json |> to_float;
     status = [];
     moves = List.assoc "moves" c_json |> to_list |> initialize_creature_moves [];
+    accuracy = 1.;
+    evasiveness = 1.;
   }
 
 let name c = c.name
@@ -115,6 +119,7 @@ let inflict_status c s =
           c with
           speed = c.speed *. 0.75;
           status = List.sort_uniq compare_status (s :: c.status);
+          evasiveness = 1.;
         }
     | _ -> { c with status = List.sort_uniq compare_status (s :: c.status) }
 
@@ -130,28 +135,53 @@ let rec change_stats c = function
       match h with
       | Attack (_, prop, _) -> { c with attack = c.attack *. prop }
       | Defense (_, prop, _) -> { c with defense = c.defense *. prop }
-      | Speed (_, prop, _) -> { c with attack = c.defense *. prop })
+      | Speed (_, prop, _) -> { c with speed = c.speed *. prop }
+      | AccuracyS (_, prop, _) -> { c with accuracy = c.accuracy *. prop }
+      | Evasiveness (_, prop, _) -> { c with evasiveness = c.evasiveness *. prop })
 
 let status_of c = List.sort_uniq compare_status c.status
 
-let rec remove_confusion acc = function
+let rec remove_confusion_tr acc = function
   | []
   | [ Confuse _ ] ->
       List.sort compare_status acc
-  | Confuse _ :: t -> remove_confusion acc t
-  | h :: t -> remove_confusion (h :: acc) t
+  | Confuse _ :: t -> remove_confusion_tr acc t
+  | h :: t -> remove_confusion_tr (h :: acc) t
+
+let remove_confusion = remove_confusion_tr []
+
+let reset_stats creature = function
+  | true ->
+      {
+        creature with
+        attack = attack creature;
+        defense = defense creature;
+        speed = speed creature;
+        status = remove_confusion creature.status;
+        accuracy = 1.;
+        evasiveness = 1.;
+      }
+  | false ->
+      {
+        creature with
+        attack = attack creature;
+        defense = defense creature;
+        speed = speed creature;
+        accuracy = 1.;
+        evasiveness = 1.;
+      }
 
 let rec apply_status_effect c = function
   | [] -> c
   | Paralyze :: t -> begin
       match Random.bool () with
       | false -> apply_status_effect c t
-      | true -> apply_status_effect c (remove_confusion [] t)
+      | true -> apply_status_effect c (remove_confusion t)
     end
   | Confuse turns :: t -> (
       let prob_snap_out = if turns < 5 then 0.5 +. (float_of_int turns *. 0.1) else 0.999 in
       let random_snap_out = Random.float 1. in
-      if random_snap_out < prob_snap_out then { c with status = remove_confusion [] c.status }
+      if random_snap_out < prob_snap_out then { c with status = remove_confusion c.status }
       else
         match Random.bool () with
         | true -> { c with hp = (if 0.9 *. c.hp <= 0.001 then 0. else 0.9 *. c.hp) }

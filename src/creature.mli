@@ -22,7 +22,10 @@ type t = {
   speed : float;
   status : status list;
   moves : Move.t list;
+  accuracy : float;
+  evasiveness : float;
 }
+
 (** The type representing the current state of a creature. The functions below all represent
     its base stats, but calling a property of this record will give the current value (which
     could change due to stat changing moves). *)
@@ -58,6 +61,12 @@ val status_of : t -> status list
     [\[Paralyze; Confuse; Poison\]] is the sorted order if a creature has all 3 conditions.
 
     Returns the empty list if the creature has no status effect on it currently. *)
+
+val reset_stats : t -> bool -> t
+(** [reset_stats c b] is creature [c] with all stats reverted to their original base values.
+    This is useful when the creature is switched out by the trainer. If [b] is [true], then
+    confusion is removed. Otherwise, just return creature [c] with the same status conditions
+    but with stats reset. *)
 
 val dead : t -> bool
 (** [dead c] is whether or not the creature is dead. It is dead if its [hp] stat is greater

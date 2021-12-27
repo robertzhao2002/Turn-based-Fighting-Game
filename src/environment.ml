@@ -23,13 +23,17 @@ let result_of env =
     | false -> Battle env.trainer2
 
 let damage env move =
-  match env.turn with
-  | true -> (
-      let trainer_creature = creature_of env.trainer1 in
-      match move.accuracy with
-      | Accuracy a -> trainer_creature.attack *. float_of_int move.power
-      | Guarantee -> trainer_creature.attack *. float_of_int move.power)
-  | false -> 0.
+  let trainer_creature =
+    match env.turn with
+    | true -> creature_of env.trainer1
+    | false -> creature_of env.trainer2
+  in
+  let damage_output = trainer_creature.attack *. float_of_int move.power in
+  match move.accuracy with
+  | Accuracy a ->
+      let accuracy_rng = Random.float 1. in
+      if accuracy_rng < a then damage_output else 0.
+  | Guarantee -> damage_output
 
 let go env =
   match result_of env with

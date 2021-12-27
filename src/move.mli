@@ -8,7 +8,7 @@ exception NoMoreUses
     - [Poison]: takes 5% hp each turn
     - [Stun]: Guaranteed to not attack for a single turn
     - [Paralyze]: 50% chance that the creature will not move for that given turn. Speed is
-      permanently reduced by 25%.
+      permanently reduced by 25%. Attacks will always hit.
     - [Confuse]: 50% chance that the creature will attack themselves. *)
 type effect =
   | Poison of float
@@ -29,6 +29,8 @@ type stat_change =
   | Attack of float * float * bool
   | Defense of float * float * bool
   | Speed of float * float * bool
+  | AccuracyS of float * float * bool
+  | Evasiveness of float * float * bool
 
 (** The type representing the possible accuracies of a move: either a changing accuracy after
     opponents may use accuracy-reducing moves, or [Guarantee], which means that a move will

@@ -10,6 +10,8 @@ type stat_change =
   | Attack of float * float * bool
   | Defense of float * float * bool
   | Speed of float * float * bool
+  | AccuracyS of float * float * bool
+  | Evasiveness of float * float * bool
 
 type move_type =
   | Water
@@ -74,6 +76,10 @@ let rec stats_from_json = function
         | "attack" -> Attack (stat_change_amount, stat_change_probability, stat_change_target)
         | "defense" -> Defense (stat_change_amount, stat_change_probability, stat_change_target)
         | "speed" -> Speed (stat_change_amount, stat_change_probability, stat_change_target)
+        | "accuracy" ->
+            AccuracyS (stat_change_amount, stat_change_probability, stat_change_target)
+        | "evasiveness" ->
+            Evasiveness (stat_change_amount, stat_change_probability, stat_change_target)
         | _ -> raise Not_found
       in
       effect :: stats_from_json t
