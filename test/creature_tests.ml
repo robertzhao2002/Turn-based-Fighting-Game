@@ -23,11 +23,11 @@ let creature_speed_test name input expected_output =
   name >:: fun _ ->
   Creature.speed input |> assert_equal expected_output ~printer:string_of_float
 
-let creature_status_test name input expected_output =
-  name >:: fun _ -> Creature.status_of input |> assert_equal expected_output
-
 let creature_dead_test name input expected_output =
   name >:: fun _ -> Creature.dead input |> assert_equal expected_output
+
+let creature_apply_poison_test name input expected_output =
+  name >:: fun _ -> Creature.apply_poison input |> assert_equal expected_output
 
 let jit_tests =
   [
@@ -36,8 +36,9 @@ let jit_tests =
     creature_attack_test "Jit has base attack 105" jit_test 105.;
     creature_defense_test "Jit has base defense 110" jit_test 110.;
     creature_speed_test "Jit has base speed 95" jit_test 95.;
-    creature_status_test "Jit has no status currently" jit_test [];
     creature_dead_test "Jit is not dead" jit_test false;
+    creature_apply_poison_test "Jit is not poisoned, so applying poison has no effect" jit_test
+      jit_test;
   ]
 
 let status_tests = []

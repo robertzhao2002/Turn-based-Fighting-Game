@@ -20,7 +20,9 @@ type t = {
   attack : float;
   defense : float;
   speed : float;
-  status : status list;
+  paralyze : bool;
+  confuse : int option;
+  poison : bool;
   moves : Move.t list;
   accuracy : float;
   evasiveness : float;
@@ -53,15 +55,6 @@ val speed : t -> float
 (** [speed c] is the base speed of creature [c]. This determines who goes first in a given
     turn. *)
 
-val status_of : t -> status list
-(** [status_of c] is the current status effect on the creature. This can be: [Poison],
-    [Paralyze], [Confuse], or any combination of them. The list will be sorted in the order
-    that these status conditions are applied onto the creature.
-
-    [\[Paralyze; Confuse; Poison\]] is the sorted order if a creature has all 3 conditions.
-
-    Returns the empty list if the creature has no status effect on it currently. *)
-
 val reset_stats : t -> bool -> t
 (** [reset_stats c b] is creature [c] with all stats reverted to their original base values.
     This is useful when the creature is switched out by the trainer. If [b] is [true], then
@@ -73,18 +66,36 @@ val dead : t -> bool
     than 0. Once its [hp] becomes 0, it is dead and can be revived 1 time to half health during
     battle. *)
 
-val inflict_status : t -> status -> t
-(** [inflict_status c s] is creature [c] with status condition [s]. If it did not have [s]
-    before, it is added to its list of status conditions. If it already has [s], nothing is
-    changed. *)
+val inflict_status : t -> Move.effect -> t * bool
+(** [inflict_status c s] is creature [c] with status condition [s] from a move that has been
+    used on it. There will be a RNG that determines whether or not the effect will be
+    inflicted. The [bool] value in the tuple represents if the status effect blocks the turn.
+    If [snd (inflict_status c s) = true] then the turn is used up and the creature cannot
+    attack (stunning, 50% chance from paralysis, and attacking yourself after confusion). *)
 
-val apply_status_effects : t -> status list -> t
-(** [apply_status_effects c s] is creature [c] after status effects [s] are applied to it at
-    the end or beginning of the turn. *)
+val apply_poison : t -> t
+(** [apply_poison c] is creature [c] with 5% less hp if [c.poison] is [true]. If [c] is not
+    poisoned, then [c] is returned. *)
+
+val apply_confusion : t -> t * bool
+(** [apply_confusion c] returns a result of a creature and a [bool] value that represents
+    whether or not the turn was used. If the creature is not confused, [(c, false)] is
+    returned. If [c] is confused, there will be an RNG to determine whether [c] will snap out
+    or stay confused. If [c] snaps out, [(c, false)] is returned and [c] is free to use a move
+    without risking any confusion damage. If [c] stays confused, the turn counter in
+    [c.confuse] will be incremented. There is a 50% chance that [c] will attack itself and
+    [true] will be returned in the result, which means that the turn has been used up. *)
+
+val apply_paralysis : t -> t * bool
+(** [apply_paralysis c] returns a result of a creature and a [bool] value that represents
+    whether or not the turn was used. If [c] is not paralyzed, [(c, false)] will be returned.
+    The paralysis RNG will determine whether or not the creature will be able to use a move.
+    [(c, true)] will be returned if the creature is afflicted by paralysis. *)
 
 val inflict_damage : t -> float -> t
 (** [inflict_damage c d] is creature [c] with [d] less hp. If subtracting [d] hp causes [d] to
     die ([d > c.hp]), then return [c] with 0 hp. *)
 
 val change_stats : t -> Move.stat_change list -> t
-(** [change_stats c s] changes creature [c]'s stats by the amounts given in [s]. *)
+(** [change_stats c s] changes creature [c]'s stats by the amounts given in [s]. If [s] is
+    paralyzed, its evasiveness cannot be changed. Attacks will always hit. *)

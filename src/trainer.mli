@@ -16,6 +16,7 @@ exception NoCreaturesDead
 type trainer_turn =
   | Switch of Creature.t * Creature.t
   | MoveUsed of Creature.t * Move.t
+  | StatusEffectBlocked
   | Revive of Creature.t
   | Surrender
 

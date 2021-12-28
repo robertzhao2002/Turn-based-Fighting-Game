@@ -15,7 +15,9 @@ type t = {
   attack : float;
   defense : float;
   speed : float;
-  status : status list;
+  paralyze : bool;
+  confuse : int option;
+  poison : bool;
   moves : Move.t list;
   accuracy : float;
   evasiveness : float;
@@ -54,7 +56,9 @@ let init_creature_with_name n =
     attack = List.assoc "attack" c_json |> to_float;
     defense = List.assoc "defense" c_json |> to_float;
     speed = List.assoc "speed" c_json |> to_float;
-    status = [];
+    paralyze = false;
+    confuse = None;
+    poison = false;
     moves = List.assoc "moves" c_json |> to_list |> initialize_creature_moves [];
     accuracy = 1.;
     evasiveness = 1.;
@@ -110,19 +114,6 @@ let rec has_status s = function
       | _ -> has_status s t
     end
 
-let inflict_status c s =
-  if has_status s c.status then c
-  else
-    match s with
-    | Paralyze ->
-        {
-          c with
-          speed = c.speed *. 0.75;
-          status = List.sort_uniq compare_status (s :: c.status);
-          evasiveness = 1.;
-        }
-    | _ -> { c with status = List.sort_uniq compare_status (s :: c.status) }
-
 let inflict_damage c d =
   let damaged = { c with hp = c.hp -. d } in
   match dead damaged with
@@ -137,9 +128,8 @@ let rec change_stats c = function
       | Defense (_, prop, _) -> { c with defense = c.defense *. prop }
       | Speed (_, prop, _) -> { c with speed = c.speed *. prop }
       | AccuracyS (_, prop, _) -> { c with accuracy = c.accuracy *. prop }
-      | Evasiveness (_, prop, _) -> { c with evasiveness = c.evasiveness *. prop })
-
-let status_of c = List.sort_uniq compare_status c.status
+      | Evasiveness (_, prop, _) ->
+          if c.paralyze then c else { c with evasiveness = c.evasiveness *. prop })
 
 let rec remove_confusion_tr acc = function
   | []
@@ -157,7 +147,7 @@ let reset_stats creature = function
         attack = attack creature;
         defense = defense creature;
         speed = speed creature;
-        status = remove_confusion creature.status;
+        confuse = None;
         accuracy = 1.;
         evasiveness = 1.;
       }
@@ -171,38 +161,51 @@ let reset_stats creature = function
         evasiveness = 1.;
       }
 
-let rec inc_confusion_turns_tr acc = function
-  | [] -> List.sort compare_status acc
-  | [ Confuse turns ] -> List.sort compare_status (Confuse (turns + 1) :: acc)
-  | Confuse turns :: t -> inc_confusion_turns_tr (Confuse (turns + 1) :: acc) t
-  | h :: t -> inc_confusion_turns_tr (h :: acc) t
-
-let inc_confusion_turns = inc_confusion_turns_tr []
-
-let rec apply_status_effects c = function
-  | [] -> c
-  | Paralyze :: t -> begin
+let apply_paralysis creature =
+  match creature.paralyze with
+  | false -> (creature, false)
+  | true -> begin
       match Random.bool () with
-      | false -> apply_status_effects c t
-      | true -> apply_status_effects c (remove_confusion t)
+      | true -> (creature, true)
+      | false -> (creature, false)
     end
-  | Confuse turns :: t -> (
+
+let apply_poison creature =
+  match creature.poison with
+  | true ->
+      { creature with hp = (if 0.95 *. creature.hp <= 0.001 then 0. else 0.95 *. creature.hp) }
+  | false -> creature
+
+let apply_confusion creature =
+  match creature.confuse with
+  | None -> (creature, false)
+  | Some turns -> (
       let prob_snap_out = if turns < 5 then 0.5 +. (float_of_int turns *. 0.1) else 0.999 in
-      let random_snap_out = Random.float 1. in
-      if random_snap_out < prob_snap_out then
-        apply_status_effects { c with status = remove_confusion c.status } t
-      else
-        let new_c_inc_confuse_turns = { c with status = inc_confusion_turns c.status } in
-        match Random.bool () with
-        | true ->
-            apply_status_effects
-              {
-                new_c_inc_confuse_turns with
-                hp = (if 0.9 *. c.hp <= 0.001 then 0. else 0.9 *. c.hp);
-              }
-              t
-        | false -> apply_status_effects new_c_inc_confuse_turns t)
-  | Poison :: t ->
-      apply_status_effects
-        { c with hp = (if 0.95 *. c.hp <= 0.001 then 0. else 0.95 *. c.hp) }
-        t
+      let rng_snap_out = Random.float 1. in
+      match rng_snap_out < prob_snap_out with
+      | true -> ({ creature with confuse = None }, false)
+      | false ->
+          ( {
+              creature with
+              hp = (if 0.9 *. creature.hp <= 0.001 then 0. else 0.9 *. creature.hp);
+              confuse = Some (turns + 1);
+            },
+            true ))
+
+let inflict_status c = function
+  | Stun prob -> (c, Random.float 1. < prob)
+  | Paralyze prob -> begin
+      match Random.float 1. < prob with
+      | true ->
+          ( { c with paralyze = true; speed = c.speed *. 0.75; evasiveness = 0. },
+            Random.bool () )
+      | false -> (c, false)
+    end
+  | Confuse prob -> begin
+      match Random.float 1. < prob with
+      | true ->
+          let initial_confused = { c with confuse = Some 0 } in
+          apply_confusion initial_confused
+      | false -> (c, false)
+    end
+  | Poison prob -> ({ c with poison = Random.float 1. < prob }, false)

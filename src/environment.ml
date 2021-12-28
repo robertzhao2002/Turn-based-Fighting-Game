@@ -35,6 +35,14 @@ let damage env move =
       if accuracy_rng < a then damage_output else 0.
   | Guarantee -> damage_output
 
+let determine_move env =
+  let trainer1_creature_speed = (creature_of env.trainer1).speed in
+  let trainer2_creature_speed = (creature_of env.trainer2).speed in
+  if trainer1_creature_speed > trainer2_creature_speed then true (* true is trainer1 turn *)
+  else if trainer2_creature_speed > trainer1_creature_speed then false
+    (* false is trainer2 turn *)
+  else Random.bool ()
+
 let go env =
   match result_of env with
   | Battle _ -> { env with turn = not env.turn }
