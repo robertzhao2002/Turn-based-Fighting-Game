@@ -2,6 +2,8 @@ open Yojson.Basic.Util
 open Move
 open Random
 
+let () = Random.self_init ()
+
 exception InvalidMove
 
 type status =
@@ -66,42 +68,28 @@ let init_creature_with_name n =
 
 let name c = c.name
 
-let hp c =
+let dead_tolerance c =
+  match c.hp < 0.001 with
+  | true -> { c with hp = 0. }
+  | false -> c
+
+let base_hp c =
   let c_json = creature_json_assoc c.name in
   List.assoc "hp" c_json |> to_float
 
-let attack c =
+let base_attack c =
   let c_json = creature_json_assoc c.name in
   List.assoc "attack" c_json |> to_float
 
-let defense c =
+let base_defense c =
   let c_json = creature_json_assoc c.name in
   List.assoc "defense" c_json |> to_float
 
-let speed c =
+let base_speed c =
   let c_json = creature_json_assoc c.name in
   List.assoc "speed" c_json |> to_float
 
 let dead c = c.hp <= 0.
-
-let compare_status s1 s2 =
-  match s2 with
-  | Paralyze -> begin
-      match s1 with
-      | Paralyze -> 0
-      | _ -> 1
-    end
-  | Confuse c -> begin
-      match s1 with
-      | Paralyze -> -1
-      | Poison -> 1
-      | _ -> 0
-    end
-  | Poison -> begin
-      match s1 with
-      | Poison -> 0
-      | _ -> -1
-    end
 
 let rec has_status s = function
   | [] -> false
@@ -120,33 +108,47 @@ let inflict_damage c d =
   | true -> { damaged with hp = 0. }
   | false -> damaged
 
-let rec change_stats c = function
-  | [] -> c
-  | h :: t -> (
+let rec change_stats c1 c2 = function
+  | [] -> (c1, c2)
+  | h :: t -> begin
       match h with
-      | Attack (_, prop, _) -> { c with attack = c.attack *. prop }
-      | Defense (_, prop, _) -> { c with defense = c.defense *. prop }
-      | Speed (_, prop, _) -> { c with speed = c.speed *. prop }
-      | AccuracyS (_, prop, _) -> { c with accuracy = c.accuracy *. prop }
-      | Evasiveness (_, prop, _) ->
-          if c.paralyze then c else { c with evasiveness = c.evasiveness *. prop })
-
-let rec remove_confusion_tr acc = function
-  | []
-  | [ Confuse _ ] ->
-      List.sort compare_status acc
-  | Confuse _ :: t -> remove_confusion_tr acc t
-  | h :: t -> remove_confusion_tr (h :: acc) t
-
-let remove_confusion = remove_confusion_tr []
+      | Attack (prob, prop, apply_to) ->
+          if Random.float 1. < prob then
+            if apply_to then change_stats { c1 with attack = c1.attack *. prop } c2 t
+            else change_stats c1 { c2 with attack = c2.attack *. prop } t
+          else change_stats c1 c2 t
+      | Defense (prob, prop, apply_to) ->
+          if Random.float 1. < prob then
+            if apply_to then change_stats { c1 with defense = c1.defense *. prop } c2 t
+            else change_stats c1 { c2 with defense = c2.defense *. prop } t
+          else change_stats c1 c2 t
+      | Speed (prob, prop, apply_to) ->
+          if Random.float 1. < prob then
+            if apply_to then change_stats { c1 with speed = c1.speed *. prop } c2 t
+            else change_stats c1 { c2 with speed = c2.speed *. prop } t
+          else change_stats c1 c2 t
+      | AccuracyS (prob, prop, apply_to) ->
+          if Random.float 1. < prob then
+            if apply_to then change_stats { c1 with accuracy = c1.accuracy *. prop } c2 t
+            else change_stats c1 { c2 with accuracy = c2.accuracy *. prop } t
+          else change_stats c1 c2 t
+      | Evasiveness (prob, prop, apply_to) ->
+          if Random.float 1. < prob then
+            if apply_to then
+              if c1.paralyze then change_stats c1 c2 t
+              else change_stats { c1 with evasiveness = c1.evasiveness *. prop } c2 t
+            else if c2.paralyze then change_stats c1 c2 t
+            else change_stats c1 { c2 with evasiveness = c2.evasiveness *. prop } t
+          else change_stats c1 c2 t
+    end
 
 let reset_stats creature = function
   | true ->
       {
         creature with
-        attack = attack creature;
-        defense = defense creature;
-        speed = speed creature;
+        attack = base_attack creature;
+        defense = base_defense creature;
+        speed = base_speed creature;
         confuse = None;
         accuracy = 1.;
         evasiveness = 1.;
@@ -154,9 +156,9 @@ let reset_stats creature = function
   | false ->
       {
         creature with
-        attack = attack creature;
-        defense = defense creature;
-        speed = speed creature;
+        attack = base_attack creature;
+        defense = base_defense creature;
+        speed = base_speed creature;
         accuracy = 1.;
         evasiveness = 1.;
       }
@@ -172,8 +174,7 @@ let apply_paralysis creature =
 
 let apply_poison creature =
   match creature.poison with
-  | true ->
-      { creature with hp = (if 0.95 *. creature.hp <= 0.001 then 0. else 0.95 *. creature.hp) }
+  | true -> dead_tolerance { creature with hp = 0.95 *. creature.hp }
   | false -> creature
 
 let apply_confusion creature =
@@ -185,11 +186,12 @@ let apply_confusion creature =
       match rng_snap_out < prob_snap_out with
       | true -> ({ creature with confuse = None }, false)
       | false ->
-          ( {
-              creature with
-              hp = (if 0.9 *. creature.hp <= 0.001 then 0. else 0.9 *. creature.hp);
-              confuse = Some (turns + 1);
-            },
+          let attack_yourself_hp =
+            match Random.bool () with
+            | true -> creature.hp *. 0.9
+            | false -> creature.hp
+          in
+          ( dead_tolerance { creature with hp = attack_yourself_hp; confuse = Some (turns + 1) },
             true ))
 
 let inflict_status c = function
@@ -208,4 +210,4 @@ let inflict_status c = function
           apply_confusion initial_confused
       | false -> (c, false)
     end
-  | Poison prob -> ({ c with poison = Random.float 1. < prob }, false)
+  | Poison prob -> (dead_tolerance { c with poison = Random.float 1. < prob }, false)

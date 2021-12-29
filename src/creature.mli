@@ -40,19 +40,19 @@ val init_creature_with_name : string -> t
 val name : t -> string
 (** [name c] is the name of creature [c]. *)
 
-val hp : t -> float
-(** [hp c] is the base hp of creature [c]. This is the amount of hitpoints [c] has. *)
+val base_hp : t -> float
+(** [base_hp c] is the base hp of creature [c]. This is the amount of hitpoints [c] has. *)
 
-val attack : t -> float
-(** [attack c] is the base attack of creature [c]. This determines how much damage [c] can deal
-    when using a given move. *)
+val base_attack : t -> float
+(** [base_attack c] is the base attack of creature [c]. This determines how much damage [c] can
+    deal when using a given move. *)
 
-val defense : t -> float
-(** [defense c] is the base defense of creature [c]. This determines how easy/hard it is for
-    [c] to lose hp. *)
+val base_defense : t -> float
+(** [base_defense c] is the base defense of creature [c]. This determines how easy/hard it is
+    for [c] to lose hp. *)
 
-val speed : t -> float
-(** [speed c] is the base speed of creature [c]. This determines who goes first in a given
+val base_speed : t -> float
+(** [base_speed c] is the base speed of creature [c]. This determines who goes first in a given
     turn. *)
 
 val reset_stats : t -> bool -> t
@@ -62,9 +62,12 @@ val reset_stats : t -> bool -> t
     but with stats reset. *)
 
 val dead : t -> bool
-(** [dead c] is whether or not the creature is dead. It is dead if its [hp] stat is greater
-    than 0. Once its [hp] becomes 0, it is dead and can be revived 1 time to half health during
+(** [dead c] is whether or not the creature is dead. It is dead if its [hp] stat is less than
+    0. Once its [hp] becomes 0, it is dead and can be revived 1 time to half health during
     battle. *)
+
+val dead_tolerance : t -> t
+(** [dead_tolerance c] is creature [c] with 0 hp if [c.hp < 0.001]. Otherwise, [c] is returned. *)
 
 val inflict_status : t -> Move.effect -> t * bool
 (** [inflict_status c s] is creature [c] with status condition [s] from a move that has been
@@ -96,6 +99,10 @@ val inflict_damage : t -> float -> t
 (** [inflict_damage c d] is creature [c] with [d] less hp. If subtracting [d] hp causes [d] to
     die ([d > c.hp]), then return [c] with 0 hp. *)
 
-val change_stats : t -> Move.stat_change list -> t
-(** [change_stats c s] changes creature [c]'s stats by the amounts given in [s]. If [s] is
-    paralyzed, its evasiveness cannot be changed. Attacks will always hit. *)
+val change_stats : t -> t -> Move.stat_change list -> t * t
+(** [change_stats c1 c2 s] returns a tuple of [c1] and [c2] after all of the stat changes in
+    [s]. The stats will be changed by the amounts given in [s] of either creature [c1] or [c2]
+    based on the [bool] value contained by each [Move.stat_change]. [c1] will always be
+    ["yourself"] and [c2] will always be ["opponent"]. It will apply the RNG of the probability
+    contained each [Move.stat_change] as well. If [s] is paralyzed, its evasiveness cannot be
+    changed since attacks will always hit paralyzed creatures. *)

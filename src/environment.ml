@@ -2,6 +2,8 @@ open Trainer
 open Random
 open Move
 
+let () = Random.self_init ()
+
 type result =
   | Battle of Trainer.t
   | Trainer1Win of string
