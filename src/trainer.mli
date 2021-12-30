@@ -21,6 +21,7 @@ type trainer_turn =
   | Surrender
 
 type t
+(** The abstract type representing a trainer. Trainers own 3 creatures and have 1 revive. *)
 
 val init_trainer : string -> Creature.t -> Creature.t -> Creature.t -> t
 (** [init_trainer n c1 c2 c3] creates a trainer with name [n], creatures [c1], [c2], and [c3],

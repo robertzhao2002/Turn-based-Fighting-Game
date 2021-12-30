@@ -61,20 +61,27 @@ val reset_stats : t -> bool -> t
     confusion is removed. Otherwise, just return creature [c] with the same status conditions
     but with stats reset. *)
 
+val change_stats : t -> t -> Move.stat_change list -> t * t
+(** [change_stats c1 c2 s] returns a tuple of [c1] and [c2] after all of the stat changes in
+    [s]. The stats will be changed by the amounts given in [s] of either creature [c1] or [c2]
+    based on the [bool] value contained by each [Move.stat_change]. [c1] will always be
+    ["yourself"] and [c2] will always be ["opponent"]. It will apply the RNG of the probability
+    contained each [Move.stat_change] as well. If [s] is paralyzed, its evasiveness cannot be
+    changed since attacks will always hit paralyzed creatures. *)
+
 val dead : t -> bool
 (** [dead c] is whether or not the creature is dead. It is dead if its [hp] stat is less than
     0. Once its [hp] becomes 0, it is dead and can be revived 1 time to half health during
     battle. *)
-
-val dead_tolerance : t -> t
-(** [dead_tolerance c] is creature [c] with 0 hp if [c.hp < 0.001]. Otherwise, [c] is returned. *)
 
 val inflict_status : t -> Move.effect -> t * bool
 (** [inflict_status c s] is creature [c] with status condition [s] from a move that has been
     used on it. There will be a RNG that determines whether or not the effect will be
     inflicted. The [bool] value in the tuple represents if the status effect blocks the turn.
     If [snd (inflict_status c s) = true] then the turn is used up and the creature cannot
-    attack (stunning, 50% chance from paralysis, and attacking yourself after confusion). *)
+    attack (stunning, 50% chance from paralysis, and attacking yourself after confusion). If
+    [c] already has the given status condition, then it will apply them, rather than treating
+    the status effect as an initial trigger. *)
 
 val apply_poison : t -> t
 (** [apply_poison c] is creature [c] with 5% less hp if [c.poison] is [true]. If [c] is not
@@ -98,11 +105,3 @@ val apply_paralysis : t -> t * bool
 val inflict_damage : t -> float -> t
 (** [inflict_damage c d] is creature [c] with [d] less hp. If subtracting [d] hp causes [d] to
     die ([d > c.hp]), then return [c] with 0 hp. *)
-
-val change_stats : t -> t -> Move.stat_change list -> t * t
-(** [change_stats c1 c2 s] returns a tuple of [c1] and [c2] after all of the stat changes in
-    [s]. The stats will be changed by the amounts given in [s] of either creature [c1] or [c2]
-    based on the [bool] value contained by each [Move.stat_change]. [c1] will always be
-    ["yourself"] and [c2] will always be ["opponent"]. It will apply the RNG of the probability
-    contained each [Move.stat_change] as well. If [s] is paralyzed, its evasiveness cannot be
-    changed since attacks will always hit paralyzed creatures. *)

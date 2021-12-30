@@ -47,7 +47,9 @@ let use_move trainer creature move = (MoveUsed (creature, move), trainer)
 
 let switch trainer creature1 creature2 =
   let trainer_has_creature = has_creature trainer in
-  if trainer_has_creature creature1 && trainer_has_creature creature2 then
+  let creature2_not_dead = not (dead creature2) in
+  if creature2_not_dead && trainer_has_creature creature1 && trainer_has_creature creature2
+  then
     ( Switch (creature1, creature2),
       { trainer with creature1 = creature2; creature2 = Creature.reset_stats creature1 true }
     )

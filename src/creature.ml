@@ -68,14 +68,15 @@ let init_creature_with_name n =
 
 let name c = c.name
 
-let dead_tolerance c =
-  match c.hp < 0.001 with
-  | true -> { c with hp = 0. }
-  | false -> c
-
 let base_hp c =
   let c_json = creature_json_assoc c.name in
   List.assoc "hp" c_json |> to_float
+
+let health_within_range c =
+  if c.hp < 0.001 then { c with hp = 0. }
+  else
+    let b_hp = base_hp c in
+    if c.hp > b_hp then { c with hp = b_hp } else c
 
 let base_attack c =
   let c_json = creature_json_assoc c.name in
@@ -90,17 +91,6 @@ let base_speed c =
   List.assoc "speed" c_json |> to_float
 
 let dead c = c.hp <= 0.
-
-let rec has_status s = function
-  | [] -> false
-  | h :: t -> begin
-      match (h, s) with
-      | Paralyze, Paralyze
-      | Confuse _, Confuse _
-      | Poison, Poison ->
-          true
-      | _ -> has_status s t
-    end
 
 let inflict_damage c d =
   let damaged = { c with hp = c.hp -. d } in
@@ -174,7 +164,7 @@ let apply_paralysis creature =
 
 let apply_poison creature =
   match creature.poison with
-  | true -> dead_tolerance { creature with hp = 0.95 *. creature.hp }
+  | true -> health_within_range { creature with hp = 0.95 *. creature.hp }
   | false -> creature
 
 let apply_confusion creature =
@@ -191,23 +181,29 @@ let apply_confusion creature =
             | true -> creature.hp *. 0.9
             | false -> creature.hp
           in
-          ( dead_tolerance { creature with hp = attack_yourself_hp; confuse = Some (turns + 1) },
+          ( health_within_range
+              { creature with hp = attack_yourself_hp; confuse = Some (turns + 1) },
             true ))
 
 let inflict_status c = function
   | Stun prob -> (c, Random.float 1. < prob)
-  | Paralyze prob -> begin
-      match Random.float 1. < prob with
-      | true ->
-          ( { c with paralyze = true; speed = c.speed *. 0.75; evasiveness = 0. },
-            Random.bool () )
-      | false -> (c, false)
-    end
+  | Paralyze prob -> (
+      if c.paralyze then (c, Random.bool ())
+      else
+        match Random.float 1. < prob with
+        | true ->
+            ( { c with paralyze = true; speed = c.speed *. 0.75; evasiveness = 0. },
+              Random.bool () )
+        | false -> (c, false))
   | Confuse prob -> begin
-      match Random.float 1. < prob with
-      | true ->
-          let initial_confused = { c with confuse = Some 0 } in
-          apply_confusion initial_confused
-      | false -> (c, false)
+      match c.confuse with
+      | Some _ -> apply_confusion c
+      | None -> begin
+          match Random.float 1. < prob with
+          | true ->
+              let initial_confused = { c with confuse = Some 0 } in
+              apply_confusion initial_confused
+          | false -> (c, false)
+        end
     end
-  | Poison prob -> (dead_tolerance { c with poison = Random.float 1. < prob }, false)
+  | Poison prob -> (health_within_range { c with poison = Random.float 1. < prob }, false)

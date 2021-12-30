@@ -1,4 +1,10 @@
 (executables
- (names move_tests creature_tests helper values)
- (modules move_tests creature_tests helper values)
+ (names command_tests creature_tests move_tests trainer_tests helper values)
+ (modules
+  command_tests
+  creature_tests
+  move_tests
+  trainer_tests
+  helper
+  values)
  (libraries Game ounit2))

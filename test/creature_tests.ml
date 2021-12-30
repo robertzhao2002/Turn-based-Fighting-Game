@@ -46,7 +46,10 @@ let jit_tests =
       "Poisoned Jit is poisoned, so applying poison will take away 5% health, while \
        maintaining poisoned status"
       jit_poison jit_after_poison;
-    creature_apply_confusion_test "Jit confuse" jit_confuse (jit_confuse_1_turn, true);
+    creature_apply_confusion_test "Jit isn't confused, so won't be affected" jit_test
+      (jit_test, false);
+    creature_apply_confusion_test "Jit confused after 1 turn" jit_confuse
+      (jit_confuse_1_turn, true);
   ]
 
 let suite = "test suite for Move module" >::: List.flatten [ jit_tests ]
