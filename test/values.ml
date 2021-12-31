@@ -1,5 +1,6 @@
 open Game.Move
 open Game.Creature
+open Game.Trainer
 open Helper
 
 (* Moves *)
@@ -25,3 +26,7 @@ let jit_confuse = { jit_test with confuse = Some 0 }
 let jit_confuse_1_turn = { jit_confuse with hp = jit_confuse.hp *. 0.9; confuse = Some 1 }
 
 let jit_everything = jit_test
+
+(* Trainers *)
+
+let trainer1 = init_trainer "Trainer1" jit_confuse jit_test jit_after_poison

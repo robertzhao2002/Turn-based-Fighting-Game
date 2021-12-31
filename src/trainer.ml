@@ -109,3 +109,13 @@ let revive (trainer : t) (creature : Creature.t) =
       else raise InvalidCreature
 
 let surrender t = (Surrender, t)
+
+let trainer_string trainer =
+  Printf.sprintf "%s%s%s%s%s%s" trainer.name
+    (if trainer.revive_used then "" else "\nREVIVE")
+    ("\n" ^ creature_string trainer.creature1 ^ " (IN BATTLE)")
+    (if dead trainer.creature2 && trainer.revive_used then ""
+    else "\n" ^ creature_string trainer.creature2)
+    (if dead trainer.creature3 && trainer.revive_used then ""
+    else "\n" ^ creature_string trainer.creature3)
+    ("\n" ^ Creature.creature_moves_string trainer.creature1)

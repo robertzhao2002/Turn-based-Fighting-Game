@@ -249,3 +249,18 @@ let creature_string creature =
       (stat_change_string creature.accuracy 1. "ACCURACY")
       (stat_change_string creature.evasiveness 1. "EVASIVENESS")
       (if creature.revived then " REVIVED" else "")
+
+let creature_moves_string creature =
+  let rec creature_moves_string_tr acc = function
+    | [] -> acc
+    | h :: t ->
+        let prefix = "\n- " in
+        creature_moves_string_tr
+          (if h.uses > 0 then
+           acc ^ prefix ^ Move.name h ^ ": " ^ string_of_int h.uses ^ "/"
+           ^ string_of_int (total_uses h)
+           ^ " uses"
+          else prefix ^ Move.name h ^ ":" ^ "No uses left")
+          t
+  in
+  creature_moves_string_tr (creature.name ^ "'s Moves") creature.moves

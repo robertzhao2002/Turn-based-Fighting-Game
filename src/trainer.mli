@@ -59,3 +59,29 @@ val revive : t -> Creature.t -> trainer_turn * t
 
 val surrender : t -> trainer_turn * t
 (** [surrender t] is the turn of trainer [t] when they choose to surrender. *)
+
+val trainer_string : t -> string
+(** [trainer_string t] is the trainer's name along with whether or not the revive has been used
+    and all of their creatures. For creature 1, it will contain each move's name and move uses
+    as fractions. Below the moves are the strings for creatures 2 and 3.
+
+    Examples
+
+    - {[
+        Trainer1
+        REVIVE
+        Creature1: 100.0% HP; CONFUSE; (IN BATTLE)
+        Creature2: DEAD;
+        Creature3: 100.0% HP; PSN;
+        Creature1's Moves
+        - MoveA: 2/2 uses
+        - MoveB: No uses left
+      ]}
+    - {[
+        Trainer1
+        Creature1: 100.0% HP; CONFUSE; (IN BATTLE)
+        Creature3: 100.0% HP; PSN;
+        Creature1's Moves
+        - MoveA: 2/2 uses
+        - MoveB: No uses left
+      ]}*)

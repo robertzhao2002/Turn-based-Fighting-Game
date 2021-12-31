@@ -97,4 +97,19 @@ val use : t -> t
 val move_string : t -> string
 (** [move_string m] is all of the details of [m]. This includes its base power, current uses as
     a fraction, base accuracy, potential status effects and associated probabilities, potential
-    stat changes and associated probabilities, and type. *)
+    stat changes and associated probabilities, and type.
+
+    Examples
+
+    - {[
+        attack 1
+        Uses: 5/10
+        Base Power: 100; Accuracy: 70.0%;
+        Status Effects: 20.0% chance to poison; 20.0% chance to confuse;
+        Stat Changes:  50.0% chance to reduce opponent attack by 50.0%; 20.0% chance to increase user defense by 50.0%;
+      ]}
+    - {[
+        attack 2
+        Uses: 2/4
+        Base Power: 100; Accuracy: 70.0%;
+      ]} *)

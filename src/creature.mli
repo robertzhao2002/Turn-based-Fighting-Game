@@ -130,5 +130,25 @@ val creature_string : t -> string
 
     Examples
 
-    - [creature_A: 69.4% HP; PSN; PAR; CONFUSE; ++ATK; -DEF; +++SPD; -ACCURACY; +EVASIVENESS; REVIVED]
-    - [creature_B: DEAD] *)
+    - {[
+        creature_A: 69.4% HP; PSN; PAR; CONFUSE; ++ATK; -DEF; +++SPD; -ACCURACY; +EVASIVENESS; REVIVED
+      ]}
+    - {[ creature_B: DEAD ]} *)
+
+val creature_moves_string : t -> string
+(** [creature_moves_string c] is an abbreviated version of all of [c]'s moves as strings. It
+    will include the name and the uses as a fraction.
+
+    Examples
+
+    - {[
+        CreatureA's Moves
+        - MoveA: 6/6 uses
+        - MoveB: No uses left
+        - MoveC: 3/5 uses
+      ]}
+    - {[
+        CreatureB's Moves
+        - MoveA: 2/6 uses
+        - MoveB: No uses left
+      ]}*)

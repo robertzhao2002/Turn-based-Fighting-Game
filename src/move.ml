@@ -206,8 +206,8 @@ let effects_as_string = function
       e_to_s_tr "\nStatus Effects:" effects
 
 let move_string move =
-  Printf.sprintf "%s\nUses: %d\nBase Power: %d; Accuracy: %s;%s%s" move.name move.uses
-    move.power
+  Printf.sprintf "%s\nUses: %d/%d\nBase Power: %d; Accuracy: %s;%s%s" move.name move.uses
+    (total_uses move) move.power
     (accuracy_to_string move.accuracy)
     (effects_as_string move.meffect)
     (stat_changes_as_string move.mstat_change)
