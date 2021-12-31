@@ -64,30 +64,8 @@
       "power": 100,
       "accuracy": 70,
       "uses": 2,
-      "effects": [
-        {
-          "effect": "poison",
-          "probability": 0.2
-        },
-        {
-          "effect": "confuse",
-          "probability": 0.2
-        }
-      ],
-      "stat changes": [
-        {
-          "stat": "attack",
-          "change": 0.5,
-          "probability": 0.5,
-          "target": "opponent"
-        },
-        {
-          "stat": "defense",
-          "change": 1.5,
-          "probability": 0.2,
-          "target": "yourself"
-        }
-      ]
+      "effects": [],
+      "stat changes": []
     }
   ]
 }

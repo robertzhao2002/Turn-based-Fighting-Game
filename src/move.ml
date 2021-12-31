@@ -134,7 +134,7 @@ let base_accuracy m =
   | Accuracy a -> a
   | Guarantee -> 1.
 
-let uses m =
+let total_uses m =
   let m_json = move_json_assoc m.name in
   List.assoc "uses" m_json |> to_int
 
@@ -150,3 +150,64 @@ let use m =
   match m.uses with
   | 0 -> raise NoMoreUses
   | u -> { m with uses = u - 1 }
+
+let accuracy_to_string = function
+  | Accuracy prop -> Printf.sprintf "%.1f%%" (prop *. 100.)
+  | Guarantee -> "Always hits"
+
+let percent_string f = Printf.sprintf "%.1f" (f *. 100.)
+
+let effect_as_string = function
+  | Poison chance -> percent_string chance ^ "% chance to poison"
+  | Confuse chance -> percent_string chance ^ "% chance to confuse"
+  | Paralyze chance -> percent_string chance ^ "% chance to paralyze"
+  | Stun chance -> percent_string chance ^ "% chance to stun"
+
+let stat_change_as_string_helper (amount, prob, target) stat =
+  let prob_percent = percent_string prob in
+  let target_string = if target then "user " else "opponent " in
+  if amount < 1. then
+    let complement = 1. -. amount in
+    prob_percent ^ "% chance to reduce " ^ target_string ^ stat ^ "by "
+    ^ percent_string complement ^ "%"
+  else
+    let multiple = amount -. 1. in
+    prob_percent ^ "% chance to increase " ^ target_string ^ stat ^ "by "
+    ^ percent_string multiple ^ "%"
+
+let stat_change_as_string = function
+  | Attack (amount, prob, target) ->
+      stat_change_as_string_helper (amount, prob, target) "attack "
+  | Defense (amount, prob, target) ->
+      stat_change_as_string_helper (amount, prob, target) "defense "
+  | Speed (amount, prob, target) ->
+      stat_change_as_string_helper (amount, prob, target) "speed "
+  | AccuracyS (amount, prob, target) ->
+      stat_change_as_string_helper (amount, prob, target) "accuracy "
+  | Evasiveness (amount, prob, target) ->
+      stat_change_as_string_helper (amount, prob, target) "evasiveness "
+
+let stat_changes_as_string = function
+  | [] -> ""
+  | stat_changes ->
+      let rec sc_to_str_tr acc = function
+        | [] -> acc
+        | h :: t -> sc_to_str_tr (acc ^ " " ^ stat_change_as_string h ^ ";") t
+      in
+      sc_to_str_tr "\nStat Changes: " stat_changes
+
+let effects_as_string = function
+  | [] -> ""
+  | effects ->
+      let rec e_to_s_tr acc = function
+        | [] -> acc
+        | h :: t -> e_to_s_tr (acc ^ " " ^ effect_as_string h ^ ";") t
+      in
+      e_to_s_tr "\nStatus Effects:" effects
+
+let move_string move =
+  Printf.sprintf "%s\nUses: %d\nBase Power: %d; Accuracy: %s;%s%s" move.name move.uses
+    move.power
+    (accuracy_to_string move.accuracy)
+    (effects_as_string move.meffect)
+    (stat_changes_as_string move.mstat_change)

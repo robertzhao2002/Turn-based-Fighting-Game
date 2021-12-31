@@ -26,6 +26,7 @@ type t = {
   moves : Move.t list;
   accuracy : float;
   evasiveness : float;
+  revived : bool;
 }
 
 (** The type representing the current state of a creature. The functions below all represent
@@ -105,3 +106,29 @@ val apply_paralysis : t -> t * bool
 val inflict_damage : t -> float -> t
 (** [inflict_damage c d] is creature [c] with [d] less hp. If subtracting [d] hp causes [d] to
     die ([d > c.hp]), then return [c] with 0 hp. *)
+
+val creature_string : t -> string
+(** [creature_string c] is [c] name, hp as a percentage, status effects, stat changes, and
+    whether or not [c] was revived displayed as a string. If [c] is dead, then [DEAD] will be
+    next to its name.
+
+    Codes
+
+    - [HP]: HP
+    - [ATK]: ATTACK
+    - [DEF]: DEFENSE
+    - [SPD]: SPEED
+    - [PSN]: POISON
+    - [PAR]: PARALYZE
+
+    For the stat changes, the number of plus/minus is based on the ratio of the current value
+    of the stat to the base stat. If this value is less than 1, then we can think of the value
+    as [1/n] of the base value. [n] will be truncated to an integer and that number of [-] will
+    be prepended to the stat. If this value is greater than 1, then we can think of the value
+    as [n] times the base value. [n] will be truncated to an integer and that number of [+]
+    will be prepended to the stat.
+
+    Examples
+
+    - [creature_A: 69.4% HP; PSN; PAR; CONFUSE; ++ATK; -DEF; +++SPD; -ACCURACY; +EVASIVENESS; REVIVED]
+    - [creature_B: DEAD] *)

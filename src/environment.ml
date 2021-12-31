@@ -4,6 +4,12 @@ open Move
 
 let () = Random.self_init ()
 
+type action =
+  | Switch of Creature.t * Creature.t
+  | MoveUsed of Creature.t * Move.t
+  | Revive of Creature.t
+  | Surrender
+
 type result =
   | Battle
   | Trainer1Win of string
@@ -45,8 +51,8 @@ let determine_move trainer1 trainer2 =
 let init t1 t2 =
   { trainer1 = t1; trainer2 = t2; turn = determine_move t1 t2; match_result = Battle }
 
-let go env =
-  match result_of env with
-  | Battle -> { env with turn = not env.turn }
-  | Trainer1Win s -> { env with match_result = Trainer1Win s }
-  | Trainer2Win s -> { env with match_result = Trainer2Win s }
+let go env = function
+  | Switch (c1, c2) -> env
+  | MoveUsed (creature, move) -> env
+  | Revive c -> env
+  | Surrender -> env

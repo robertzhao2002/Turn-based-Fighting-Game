@@ -73,6 +73,7 @@ let revive (trainer : t) (creature : Creature.t) =
                 {
                   (init_creature_with_name trainer.creature1.name) with
                   hp = base_hp trainer.creature1 /. 2.;
+                  revived = true;
                 };
               revive_used = true;
             } )
@@ -86,6 +87,7 @@ let revive (trainer : t) (creature : Creature.t) =
                 {
                   (init_creature_with_name trainer.creature2.name) with
                   hp = base_hp trainer.creature2 /. 2.;
+                  revived = true;
                 };
               revive_used = true;
             } )
@@ -99,6 +101,7 @@ let revive (trainer : t) (creature : Creature.t) =
                 {
                   (init_creature_with_name trainer.creature3.name) with
                   hp = base_hp trainer.creature3 /. 2.;
+                  revived = true;
                 };
               revive_used = true;
             } )

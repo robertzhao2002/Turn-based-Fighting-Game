@@ -23,6 +23,7 @@ type t = {
   moves : Move.t list;
   accuracy : float;
   evasiveness : float;
+  revived : bool;
 }
 
 let rec initialize_creature_moves acc = function
@@ -64,6 +65,7 @@ let init_creature_with_name n =
     moves = List.assoc "moves" c_json |> to_list |> initialize_creature_moves [];
     accuracy = 1.;
     evasiveness = 1.;
+    revived = false;
   }
 
 let name c = c.name
@@ -90,7 +92,7 @@ let base_speed c =
   let c_json = creature_json_assoc c.name in
   List.assoc "speed" c_json |> to_float
 
-let dead c = c.hp <= 0.
+let dead c = c.hp <= 0.001
 
 let inflict_damage c d =
   let damaged = { c with hp = c.hp -. d } in
@@ -207,3 +209,43 @@ let inflict_status c = function
         end
     end
   | Poison prob -> (health_within_range { c with poison = Random.float 1. < prob }, false)
+
+let psn_par_string status condition =
+  match status with
+  | true -> condition
+  | false -> ""
+
+let confuse_string c =
+  match c.confuse with
+  | Some _ -> " CONFUSE;"
+  | None -> ""
+
+let rec pm_iter ch = function
+  | 0 -> ""
+  | n -> ch ^ pm_iter ch (n - 1)
+
+let stat_change_string stat base str =
+  let ratio = stat /. base in
+  if stat = 0. then ""
+  else if stat > base then
+    let int_multiple = int_of_float ratio in
+    " " ^ pm_iter "+" int_multiple ^ str ^ ";"
+  else if stat < base then
+    let int_multiple = int_of_float (1. /. ratio) in
+    " " ^ pm_iter "-" int_multiple ^ str ^ ";"
+  else ""
+
+let creature_string creature =
+  if dead creature then Printf.sprintf "%s: DEAD" creature.name
+  else
+    Printf.sprintf "%s: %.1f%% HP;%s%s%s%s%s%s%s%s%s" creature.name
+      (creature.hp /. base_hp creature *. 100.)
+      (psn_par_string creature.poison " PSN;")
+      (psn_par_string creature.paralyze " PAR;")
+      (confuse_string creature)
+      (stat_change_string creature.attack (base_attack creature) "ATK")
+      (stat_change_string creature.defense (base_defense creature) "DEF")
+      (stat_change_string creature.speed (base_speed creature) "SPD")
+      (stat_change_string creature.accuracy 1. "ACCURACY")
+      (stat_change_string creature.evasiveness 1. "EVASIVENESS")
+      (if creature.revived then " REVIVED" else "")

@@ -77,8 +77,8 @@ val base_accuracy : t -> float
     target, it will do damage based on the base power and base attack stat of the creature. If
     it does not hit (misses), then 0 damage is done. *)
 
-val uses : t -> int
-(** [uses m] is the number of times move [m] can be used in a battle. Each move has a
+val total_uses : t -> int
+(** [total_uses m] is the number of times move [m] can be used in a battle. Each move has a
     predetermined number of uses. Every time u use [m], this number decrements. Whenever
     [uses m] is 0, then [m] cannot be used anymore. When a creature has no more moves to use,
     it automatically dies, even if it is at full hp. *)
@@ -93,3 +93,8 @@ val stat_changes : t -> stat_change list
 val use : t -> t
 (** [use m] is the state of the move after one use. Its [uses] property will decrease by 1.
     This function raises [NoMoreUses] if there are no uses left. *)
+
+val move_string : t -> string
+(** [move_string m] is all of the details of [m]. This includes its base power, current uses as
+    a fraction, base accuracy, potential status effects and associated probabilities, potential
+    stat changes and associated probabilities, and type. *)

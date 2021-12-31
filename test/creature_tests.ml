@@ -2,10 +2,11 @@ open OUnit2
 open Game
 open Move
 open Creature
+open Helper
 open Values
 
 let creature_name_test name input expected_output =
-  name >:: fun _ -> Creature.name input |> assert_equal expected_output ~printer:(fun x -> x)
+  name >:: fun _ -> Creature.name input |> assert_equal expected_output ~printer:id
 
 let creature_base_hp_test name input expected_output =
   name >:: fun _ ->
@@ -32,6 +33,9 @@ let creature_apply_poison_test name input expected_output =
 let creature_apply_confusion_test name input expected_output =
   name >:: fun _ -> Creature.apply_confusion input |> assert_equal expected_output
 
+let creature_string_test name input expected_output =
+  name >:: fun _ -> Creature.creature_string input |> assert_equal expected_output ~printer:id
+
 let jit_tests =
   [
     creature_name_test "Jit's name is Jit" jit_test "Jit";
@@ -50,6 +54,7 @@ let jit_tests =
       (jit_test, false);
     creature_apply_confusion_test "Jit confused after 1 turn" jit_confuse
       (jit_confuse_1_turn, true);
+    creature_string_test "Jit confused as a string" jit_confuse_1_turn "";
   ]
 
 let suite = "test suite for Move module" >::: List.flatten [ jit_tests ]
