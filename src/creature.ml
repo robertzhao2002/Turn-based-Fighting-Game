@@ -6,11 +6,6 @@ let () = Random.self_init ()
 
 exception InvalidMove
 
-type status =
-  | Paralyze
-  | Confuse of int
-  | Poison
-
 type t = {
   name : string;
   hp : float;
@@ -209,6 +204,13 @@ let inflict_status c = function
         end
     end
   | Poison prob -> (health_within_range { c with poison = Random.float 1. < prob }, false)
+
+let move_with_name creature move_name =
+  let rec find_move_with_name = function
+    | [] -> raise InvalidMove
+    | h :: t -> if Move.name h = move_name then h else find_move_with_name t
+  in
+  find_move_with_name creature.moves
 
 let psn_par_string status condition =
   match status with

@@ -10,6 +10,10 @@ type action =
   | Revive of Creature.t
   | Surrender
 
+type game_mode =
+  | Random of bool (* the boolean will represent single- or 2- player *)
+  | NonRandom of bool
+
 type result =
   | Battle
   | Trainer1Win of string

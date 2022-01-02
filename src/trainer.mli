@@ -62,8 +62,10 @@ val surrender : t -> trainer_turn * t
 
 val trainer_string : t -> string
 (** [trainer_string t] is the trainer's name along with whether or not the revive has been used
-    and all of their creatures. For creature 1, it will contain each move's name and move uses
-    as fractions. Below the moves are the strings for creatures 2 and 3.
+    and all of their creatures. [trainer.creature1] will have their moves and uses (as
+    fractions) shown below the list of 3 trainers. If the revive has not been used, dead
+    creatures will show up as dead. If the revive has been used, dead creatures will not be
+    shown.
 
     Examples
 
