@@ -266,3 +266,15 @@ let creature_moves_string creature =
           t
   in
   creature_moves_string_tr (creature.name ^ "'s Moves") creature.moves
+
+let show_change base current =
+  let ratio = current /. base in
+  if ratio <= 1.03 && ratio >= 0.97 then Printf.sprintf "%.1f" current
+  else Printf.sprintf "%.1f -> %.1f" base current
+
+let creature_stats_string creature =
+  Printf.sprintf "%s's Stats\nHP: %.1f/%.1f\nATK: %s\nDEF: %s\nSPD: %s" creature.name
+    creature.hp (base_hp creature)
+    (show_change (base_attack creature) creature.attack)
+    (show_change (base_defense creature) creature.defense)
+    (show_change (base_speed creature) creature.speed)

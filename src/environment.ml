@@ -26,16 +26,21 @@ type t = {
   turn : bool;
 }
 
+let env_turn env =
+  match env.turn with
+  | true -> env.trainer1
+  | false -> env.trainer2
+
 let result_of env =
   if all_dead env.trainer1 then Trainer2Win (Trainer.name env.trainer2)
   else if all_dead env.trainer2 then Trainer1Win (Trainer.name env.trainer1)
   else Battle
 
 let damage env move =
-  let trainer_creature =
+  let trainer_creature, opponent_creature =
     match env.turn with
-    | true -> creature_of env.trainer1
-    | false -> creature_of env.trainer2
+    | true -> (creature_of env.trainer1, creature_of env.trainer2)
+    | false -> (creature_of env.trainer2, creature_of env.trainer1)
   in
   let damage_output = trainer_creature.attack *. float_of_int move.power in
   match move.accuracy with

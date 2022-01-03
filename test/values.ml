@@ -17,6 +17,11 @@ let chug_jug = init_move_with_name "chug jug"
 (* Creatures *)
 let jit_test = init_creature_with_name "Jit"
 
+let jit_attack_reduced = { jit_test with attack = 0.5 *. jit_test.attack }
+
+let jit_defense_boost_attack_reduced =
+  { jit_attack_reduced with defense = 1.5 *. jit_attack_reduced.defense }
+
 let jit_poison = { jit_test with poison = true }
 
 let jit_after_poison = { jit_poison with hp = jit_poison.hp *. 0.95 }

@@ -36,6 +36,10 @@ let creature_apply_confusion_test name input expected_output =
 let creature_string_test name input expected_output =
   name >:: fun _ -> Creature.creature_string input |> assert_equal expected_output ~printer:id
 
+let creature_stats_string_test name input expected_output =
+  name >:: fun _ ->
+  Creature.creature_stats_string input |> assert_equal expected_output ~printer:id
+
 let jit_tests =
   [
     creature_name_test "Jit's name is Jit" jit_test "Jit";
@@ -55,6 +59,7 @@ let jit_tests =
     creature_apply_confusion_test "Jit confused after 1 turn" jit_confuse
       (jit_confuse_1_turn, true);
     creature_string_test "Jit confused as a string" jit_confuse_1_turn "";
+    creature_stats_string_test "Jit's stats as string" jit_defense_boost_attack_reduced "";
   ]
 
 let suite = "test suite for Move module" >::: List.flatten [ jit_tests ]

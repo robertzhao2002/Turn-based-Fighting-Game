@@ -127,6 +127,21 @@ val creature_string : t -> string
       ]}
     - {[ creature_B: DEAD ]} *)
 
+val creature_stats_string : t -> string
+(** [creature_stats_string c] shows all of the base stats of [c] along with the new value of
+    the stat if it has been changed. If there is no more than a 3% difference between the base
+    and current value, then return the current value as a string. [base_value -> new_value]
+
+    Examples
+
+    - {[
+        CreatureA's Stats
+        - HP: 40.3/200.2
+        - ATK: 100.5
+        - DEF: 75.6 -> 100.3
+        - SPD: 85.5 -> 80.0
+      ]}*)
+
 val creature_moves_string : t -> string
 (** [creature_moves_string c] is an abbreviated version of all of [c]'s moves as strings. It
     will include the name and the uses as a fraction.
