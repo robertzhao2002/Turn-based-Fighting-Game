@@ -5,9 +5,9 @@ open Move
 let () = Random.self_init ()
 
 type action =
-  | Switch of Creature.t * Creature.t
-  | MoveUsed of Creature.t * Move.t
-  | Revive of Creature.t
+  | Switch
+  | MoveUsed
+  | Revive of string
   | Surrender
 
 type game_mode =
@@ -42,11 +42,12 @@ let damage env move =
     | true -> (creature_of env.trainer1, creature_of env.trainer2)
     | false -> (creature_of env.trainer2, creature_of env.trainer1)
   in
+  let hit_probability = trainer_creature.accuracy /. opponent_creature.evasiveness in
   let damage_output = trainer_creature.attack *. float_of_int move.power in
   match move.accuracy with
   | Accuracy a ->
       let accuracy_rng = Random.float 1. in
-      if accuracy_rng < a then damage_output else 0.
+      if accuracy_rng < a *. hit_probability then damage_output else 0.
   | Guarantee -> damage_output
 
 let determine_move trainer1 trainer2 =
@@ -60,8 +61,12 @@ let determine_move trainer1 trainer2 =
 let init t1 t2 =
   { trainer1 = t1; trainer2 = t2; turn = determine_move t1 t2; match_result = Battle }
 
-let go env = function
-  | Switch (c1, c2) -> env
-  | MoveUsed (creature, move) -> env
-  | Revive c -> env
-  | Surrender -> env
+let next env action1 action2 =
+  match (action1, action2) with
+  | Switch, Revive creature_name ->
+      let trainer2_creature = Trainer.creature_with_name env.trainer2 creature_name in
+      let trainer2_revived = Trainer.revive env.trainer2 trainer2_creature in
+      { env with trainer2 = trainer2_revived }
+  | _, Surrender -> { env with match_result = Trainer2Win (Trainer.name env.trainer2) }
+  | Surrender, _ -> { env with match_result = Trainer1Win (Trainer.name env.trainer1) }
+  | _ -> raise Not_found

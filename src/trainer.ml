@@ -10,13 +10,6 @@ exception InvalidCreature
 
 exception NoCreaturesDead
 
-type trainer_turn =
-  | Switch of Creature.t * Creature.t
-  | MoveUsed of Creature.t * Move.t
-  | StatusEffectBlocked
-  | Revive of Creature.t
-  | Surrender
-
 type t = {
   name : string;
   creature1 : Creature.t;
@@ -41,18 +34,21 @@ let all_dead trainer =
 let has_creature trainer creature =
   trainer.creature1 = creature || trainer.creature2 = creature || trainer.creature3 = creature
 
+let creature_with_name trainer n =
+  if trainer.creature1.name = n then trainer.creature1
+  else if trainer.creature2.name = n then trainer.creature2
+  else if trainer.creature3.name = n then trainer.creature3
+  else raise InvalidCreature
+
 let creature_of trainer = trainer.creature1
 
-let use_move trainer creature move = (MoveUsed (creature, move), trainer)
+let use_move trainer creature move = trainer (* TODO *)
 
 let switch trainer creature1 creature2 =
   let trainer_has_creature = has_creature trainer in
   let creature2_not_dead = not (dead creature2) in
   if creature2_not_dead && trainer_has_creature creature1 && trainer_has_creature creature2
-  then
-    ( Switch (creature1, creature2),
-      { trainer with creature1 = creature2; creature2 = Creature.reset_stats creature1 true }
-    )
+  then { trainer with creature1 = creature2; creature2 = Creature.reset_stats creature1 true }
   else raise InvalidSwitch
 
 let revive (trainer : t) (creature : Creature.t) =
@@ -66,49 +62,44 @@ let revive (trainer : t) (creature : Creature.t) =
       if all_alive trainer then raise NoCreaturesDead
       else if revived_name = c1name then
         if dead trainer.creature1 then
-          ( Revive creature,
-            {
-              trainer with
-              creature1 =
-                {
-                  (init_creature_with_name trainer.creature1.name) with
-                  hp = base_hp trainer.creature1 /. 2.;
-                  revived = true;
-                };
-              revive_used = true;
-            } )
+          {
+            trainer with
+            creature1 =
+              {
+                (init_creature_with_name trainer.creature1.name) with
+                hp = base_hp trainer.creature1 /. 2.;
+                revived = true;
+              };
+            revive_used = true;
+          }
         else raise (CreatureNotDead trainer.creature1)
       else if revived_name = c2name then
         if dead trainer.creature2 then
-          ( Revive creature,
-            {
-              trainer with
-              creature2 =
-                {
-                  (init_creature_with_name trainer.creature2.name) with
-                  hp = base_hp trainer.creature2 /. 2.;
-                  revived = true;
-                };
-              revive_used = true;
-            } )
+          {
+            trainer with
+            creature2 =
+              {
+                (init_creature_with_name trainer.creature2.name) with
+                hp = base_hp trainer.creature2 /. 2.;
+                revived = true;
+              };
+            revive_used = true;
+          }
         else raise (CreatureNotDead trainer.creature2)
       else if revived_name = c3name then
         if dead trainer.creature3 then
-          ( Revive creature,
-            {
-              trainer with
-              creature3 =
-                {
-                  (init_creature_with_name trainer.creature3.name) with
-                  hp = base_hp trainer.creature3 /. 2.;
-                  revived = true;
-                };
-              revive_used = true;
-            } )
+          {
+            trainer with
+            creature3 =
+              {
+                (init_creature_with_name trainer.creature3.name) with
+                hp = base_hp trainer.creature3 /. 2.;
+                revived = true;
+              };
+            revive_used = true;
+          }
         else raise (CreatureNotDead trainer.creature3)
       else raise InvalidCreature
-
-let surrender t = (Surrender, t)
 
 let trainer_string trainer =
   Printf.sprintf "%s%s%s%s%s%s" trainer.name

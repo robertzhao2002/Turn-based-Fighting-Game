@@ -13,13 +13,6 @@ exception NoCreaturesDead
 (** [NoCreaturesDead] is raised when a trainer attempts to use a revive when none of their
     creatures are dead. *)
 
-type trainer_turn =
-  | Switch of Creature.t * Creature.t
-  | MoveUsed of Creature.t * Move.t
-  | StatusEffectBlocked
-  | Revive of Creature.t
-  | Surrender
-
 type t
 (** The abstract type representing a trainer. Trainers own 3 creatures and have 1 revive. *)
 
@@ -43,22 +36,23 @@ val has_creature : t -> Creature.t -> bool
 (** [has_creature t c] is [true] if [c] is either [t.creature1], [t.creature2], or
     [t.creature3]. It returns [false] otherwise. *)
 
-val use_move : t -> Creature.t -> Move.t -> trainer_turn * t
+val creature_with_name : t -> string -> Creature.t
+(** [creature_with_name tr n] is a creature with name [n] if it is one of [tr.creature1],
+    [tr.creature2], or [tr.creature3]. Otherwise, it raises [InvalidCreature]. *)
+
+val use_move : t -> Creature.t -> Move.t -> t
 (** [use_move t c m] is the result of trainer [t] using move [m] of creature [c]. *)
 
-val switch : t -> Creature.t -> Creature.t -> trainer_turn * t
+val switch : t -> Creature.t -> Creature.t -> t
 (** [switch t c1 c2] is the result of trainer [t] switching between creature [c1] and creature
     [c2]. [c2] is now on the battlefield, and [c1]'s health is unchanged. [c1] will no longer
     be confused, all stat changes are reset, but poison/paralysis remains. *)
 
-val revive : t -> Creature.t -> trainer_turn * t
+val revive : t -> Creature.t -> t
 (** [revive t c] revives creature [c] if [c] has 0 hp (dead) and trainer [t] has a revive left.
     When a creature is revived, it is essentially like new except it has half its original
     health. All of its moves have maximum uses, status conditions are cleared, and all stat
     changes are reset. Reviving uses up a turn. *)
-
-val surrender : t -> trainer_turn * t
-(** [surrender t] is the turn of trainer [t] when they choose to surrender. *)
 
 val trainer_string : t -> string
 (** [trainer_string t] is the trainer's name along with whether or not the revive has been used
