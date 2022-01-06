@@ -40,22 +40,31 @@ let creature_with_name trainer n =
   else if trainer.creature3.name = n then trainer.creature3
   else raise InvalidCreature
 
+let other_creature_with_name trainer n =
+  if trainer.creature2.name = n then (trainer.creature2, 2)
+  else if trainer.creature3.name = n then (trainer.creature3, 3)
+  else raise InvalidCreature
+
 let creature_of trainer = trainer.creature1
 
-let use_move trainer creature move = trainer (* TODO *)
+let use_move trainer move =
+  { trainer with creature1 = Creature.use_move_with_name trainer.creature1 move }
 
-let switch trainer creature1 creature2 =
-  let trainer_has_creature = has_creature trainer in
-  let creature2_not_dead = not (dead creature2) in
-  if creature2_not_dead && trainer_has_creature creature1 && trainer_has_creature creature2
-  then { trainer with creature1 = creature2; creature2 = Creature.reset_stats creature1 true }
-  else raise InvalidSwitch
+let switch trainer creature_name =
+  let new_battling_creature, order =
+    try other_creature_with_name trainer creature_name with
+    | InvalidCreature -> raise InvalidCreature
+  in
+  let switched_out = Creature.reset_stats trainer.creature1 true in
+  match order with
+  | 2 -> { trainer with creature1 = new_battling_creature; creature2 = switched_out }
+  | 3 -> { trainer with creature1 = new_battling_creature; creature3 = switched_out }
+  | _ -> raise InvalidCreature
 
-let revive (trainer : t) (creature : Creature.t) =
+let revive (trainer : t) revived_name =
   match trainer.revive_used with
   | true -> raise NoMoreRevives
   | false ->
-      let revived_name = creature.name in
       let c1name = trainer.creature1.name in
       let c2name = trainer.creature2.name in
       let c3name = trainer.creature3.name in

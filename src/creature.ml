@@ -205,12 +205,20 @@ let inflict_status c = function
     end
   | Poison prob -> (health_within_range { c with poison = Random.float 1. < prob }, false)
 
-let move_with_name creature move_name =
-  let rec find_move_with_name = function
-    | [] -> raise InvalidMove
-    | h :: t -> if Move.name h = move_name then h else find_move_with_name t
+let rec find_move_with_name move_name = function
+  | [] -> raise InvalidMove
+  | h :: t -> if Move.name h = move_name then h else find_move_with_name move_name t
+
+let use_move_with_name creature mname =
+  let rec use_move_with_name_tr move_name acc = function
+    | [] -> acc
+    | h :: t ->
+        if Move.name h = move_name then use_move_with_name_tr move_name (use h :: acc) t
+        else use_move_with_name_tr move_name (h :: acc) t
   in
-  find_move_with_name creature.moves
+  { creature with moves = use_move_with_name_tr mname [] creature.moves }
+
+let move_with_name creature move_name = find_move_with_name move_name creature.moves
 
 let psn_par_string status condition =
   match status with

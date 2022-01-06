@@ -1,8 +1,8 @@
 type t
 
 type action =
-  | Switch
-  | MoveUsed
+  | Switch of string
+  | MoveUsed of string
   | Revive of string
   | Surrender
 

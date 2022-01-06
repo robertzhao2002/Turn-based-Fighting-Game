@@ -99,6 +99,11 @@ val move_with_name : t -> string -> Move.t
 (** [move_with_name c s] is a [Move.t] with name [s] if this move is one of creature [c]'s
     moves. Otherwise, raise [InvalidMove]. *)
 
+val use_move_with_name : t -> string -> t
+(** [use_move_with_name c n] is creature [c] after a move of crature [c] with name[n] has been
+    used. Raises [InvalidMove] if [n] is not one of [c]'s moves. Raises [Move.NoMoreUses] is
+    the move has no uses left. *)
+
 val creature_string : t -> string
 (** [creature_string c] is [c] name, hp as a percentage, status effects, stat changes, and
     whether or not [c] was revived displayed as a string. If [c] is dead, then [DEAD] will be

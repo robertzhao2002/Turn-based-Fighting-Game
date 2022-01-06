@@ -40,19 +40,22 @@ val creature_with_name : t -> string -> Creature.t
 (** [creature_with_name tr n] is a creature with name [n] if it is one of [tr.creature1],
     [tr.creature2], or [tr.creature3]. Otherwise, it raises [InvalidCreature]. *)
 
-val use_move : t -> Creature.t -> Move.t -> t
-(** [use_move t c m] is the result of trainer [t] using move [m] of creature [c]. *)
+val use_move : t -> string -> t
+(** [use_move t c m] is the result of trainer [t] using move [m] of creature [c]. This can
+    raise [Creature.InvalidMove] or [Move.NoMoreUses] based on those corresponding conditions. *)
 
-val switch : t -> Creature.t -> Creature.t -> t
-(** [switch t c1 c2] is the result of trainer [t] switching between creature [c1] and creature
-    [c2]. [c2] is now on the battlefield, and [c1]'s health is unchanged. [c1] will no longer
-    be confused, all stat changes are reset, but poison/paralysis remains. *)
+val switch : t -> string -> t
+(** [switch t n] is the result of trainer [t] switching to one of [trainer.creature2] or
+    [trainer.creature3] with name [n]. As a result, the creature with name [n] should now be
+    [trainer.creature1], and the old [trainer.creature1] has been placed in the vacant slot. If
+    [n] does not correspond to a creature name or if the creature corresponding to [n] is dead,
+    [InvalidCreature] is raised. *)
 
-val revive : t -> Creature.t -> t
-(** [revive t c] revives creature [c] if [c] has 0 hp (dead) and trainer [t] has a revive left.
-    When a creature is revived, it is essentially like new except it has half its original
-    health. All of its moves have maximum uses, status conditions are cleared, and all stat
-    changes are reset. Reviving uses up a turn. *)
+val revive : t -> string -> t
+(** [revive t n] revives creature with name [n] if [n] has 0 hp (dead) and trainer [t] has a
+    revive left. When a creature is revived, it is essentially like new except it has half its
+    original health. All of its moves have maximum uses, status conditions are cleared, and all
+    stat changes are reset. Reviving uses up a turn. *)
 
 val trainer_string : t -> string
 (** [trainer_string t] is the trainer's name along with whether or not the revive has been used
