@@ -6,8 +6,8 @@ type t =
   | Summary of string
   | Info of string
   | UseMove of string
-  | Switch of string
-  | Revive of string
+  | Command_Switch of string
+  | Command_Revive of string
   | Surrender
   | Quit
 
@@ -38,7 +38,7 @@ let parse s =
         | "summary" -> Summary (String.concat " " rest)
         | "info" -> Info (String.concat " " rest)
         | "use" -> UseMove (String.concat " " rest)
-        | "switch" -> Switch (String.concat " " rest)
-        | "revive" -> Revive (String.concat " " rest)
+        | "switch" -> Command_Switch (String.concat " " rest)
+        | "revive" -> Command_Revive (String.concat " " rest)
         | _ -> raise Malformed
     end

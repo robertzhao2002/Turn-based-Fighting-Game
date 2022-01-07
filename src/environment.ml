@@ -31,6 +31,18 @@ let result_of env =
   else if all_dead env.trainer2 then Trainer1Win (Trainer.name env.trainer1)
   else Battle
 
+let trainer_from_turn env =
+  match env.turn with
+  | true -> env.trainer1
+  | false -> env.trainer2
+
+let other_trainer env =
+  match env.turn with
+  | true -> env.trainer2
+  | false -> env.trainer1
+
+let next_turn env = { env with turn = not env.turn }
+
 let damage env move =
   let trainer_creature, opponent_creature =
     match env.turn with
@@ -54,8 +66,7 @@ let determine_move trainer1 trainer2 =
     (* false is trainer2 turn *)
   else Random.bool ()
 
-let init t1 t2 =
-  { trainer1 = t1; trainer2 = t2; turn = determine_move t1 t2; match_result = Battle }
+let init t1 t2 = { trainer1 = t1; trainer2 = t2; turn = true; match_result = Battle }
 
 let dead_action env action =
   match env.turn with
@@ -70,8 +81,8 @@ let winner env =
 let modify_env_turn env tr =
   if env.turn then { env with trainer1 = tr } else { env with trainer2 = tr }
 
-let single_next env action1 =
-  let env_turn_trainer = if env.turn then env.trainer1 else env.trainer2 in
+let next env action1 =
+  let env_turn_trainer = trainer_from_turn env in
   match action1 with
   | Switch c ->
       let tr_switch = Trainer.switch env_turn_trainer c in
@@ -84,7 +95,7 @@ let single_next env action1 =
   | Surrender -> { env with match_result = winner env }
   | MoveUsed _ -> raise (Failure "Should be impossible")
 
-let next env action1 action2 =
+let next_wrong env action1 action2 =
   match (action1, action2) with
   | Switch creature_name1, Revive creature_name2 ->
       let trainer1_switch = Trainer.switch env.trainer1 creature_name1 in

@@ -1,5 +1,3 @@
-type t
-
 type action =
   | Switch of string
   | MoveUsed of string
@@ -11,14 +9,34 @@ type result =
   | Trainer1Win of string
   | Trainer2Win of string
 
+type t = {
+  trainer1 : Trainer.t;
+  trainer2 : Trainer.t;
+  match_result : result;
+  turn : bool;
+}
+
+val init : Trainer.t -> Trainer.t -> t
+(** [init t1 t2] is an environment with [env.trainer1 = t1] and [env.trainer2 = t2]. *)
+
+val trainer_from_turn : t -> Trainer.t
+(** [trainer_from_turn env] is either [env.trainer1] if [env.turn = true] or [env.trainer2] if
+    [env.turn = false]. *)
+
+val other_trainer : t -> Trainer.t
+(** [other_trainer env] is the trainer that is not returned by [trainer_from_turn env]. If
+    [env.turn = true] then the value is [env.trainer2]. If [env.turn = false] then the value if
+    [env.rainer1]. *)
+
 val result_of : t -> result
 (** [result_of env] is the current state of the match. Either the match is in progress
     ([Battle] will be returned), or a trainer has won ([Trainer1Win] or [Trainer2Win] will be
     returned based on the victory of the corresponding trainer). *)
 
-val next : t -> action -> action -> t
-(** [next env action1 action2] is the state of the game environment after 1 turn by each
-    trainer. During this sequence, either a winner is determined or the game continues.
-    [action1] is the action performed by [trainer1], and [action2] is the action performed by
-    [trainer2]. Both of these actions will be processed by [env] and the faster one will go
-    first. *)
+val next_turn : t -> t
+(** [next_turn env] is [env] with [env.turn] toggled to the opposite of what it was before. *)
+
+val next : t -> action -> t
+(** [next env action1] is the state of the game environment after 1 turn by the trainer
+    determined by [env.turn]. The trainer can either choose to switch to a new creature, revive
+    a dead creature, use a move, or surrender. *)

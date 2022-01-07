@@ -35,14 +35,14 @@ let has_creature trainer creature =
   trainer.creature1 = creature || trainer.creature2 = creature || trainer.creature3 = creature
 
 let creature_with_name trainer n =
-  if trainer.creature1.name = n then trainer.creature1
-  else if trainer.creature2.name = n then trainer.creature2
-  else if trainer.creature3.name = n then trainer.creature3
+  if String.lowercase_ascii trainer.creature1.name = n then trainer.creature1
+  else if String.lowercase_ascii trainer.creature2.name = n then trainer.creature2
+  else if String.lowercase_ascii trainer.creature3.name = n then trainer.creature3
   else raise InvalidCreature
 
 let other_creature_with_name trainer n =
-  if trainer.creature2.name = n then (trainer.creature2, 2)
-  else if trainer.creature3.name = n then (trainer.creature3, 3)
+  if String.lowercase_ascii trainer.creature2.name = n then (trainer.creature2, 2)
+  else if String.lowercase_ascii trainer.creature3.name = n then (trainer.creature3, 3)
   else raise InvalidCreature
 
 let creature_of trainer = trainer.creature1

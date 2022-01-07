@@ -13,9 +13,9 @@ let parse_tests =
     parse_test "    sUmMary       CREATURE" "    sUmMary       CREATURE" (Summary "creature");
     parse_test "info this     attack" "info this     attack" (Info "this attack");
     parse_test "use       attack" "use       attack" (UseMove "attack");
-    parse_test "switch creature2" "switch creature2" (Switch "creature2");
+    parse_test "switch creature2" "switch creature2" (Command_Switch "creature2");
     parse_test "revive this creature now" "revive this creature now"
-      (Revive "this creature now");
+      (Command_Revive "this creature now");
   ]
 
 let parse_excep_tests =
