@@ -21,7 +21,11 @@ type t = {
 let init_trainer name c1 c2 c3 =
   { name; creature1 = c1; creature2 = c2; creature3 = c3; revive_used = false }
 
+let modify_creature trainer new_creature = { trainer with creature1 = new_creature }
+
 let name trainer = trainer.name
+
+let has_revive trainer = not trainer.revive_used
 
 let all_alive trainer =
   dead trainer.creature1 |> not
@@ -34,6 +38,10 @@ let all_dead trainer =
 let has_creature trainer creature_name =
   String.lowercase_ascii trainer.creature1.name = creature_name
   || String.lowercase_ascii trainer.creature2.name = creature_name
+  || String.lowercase_ascii trainer.creature3.name = creature_name
+
+let creature_not_in_battle trainer creature_name =
+  String.lowercase_ascii trainer.creature2.name = creature_name
   || String.lowercase_ascii trainer.creature3.name = creature_name
 
 let creature_with_name trainer n =
@@ -57,6 +65,7 @@ let switch trainer creature_name =
     try other_creature_with_name trainer creature_name with
     | InvalidCreature -> raise InvalidCreature
   in
+  print_endline (string_of_int order);
   let switched_out = Creature.reset_stats trainer.creature1 true in
   match order with
   | 2 -> { trainer with creature1 = new_battling_creature; creature2 = switched_out }

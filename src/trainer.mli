@@ -24,6 +24,12 @@ val init_trainer : string -> Creature.t -> Creature.t -> Creature.t -> t
 val name : t -> string
 (** [name t] is the name of trainer [t]. *)
 
+val modify_creature : t -> Creature.t -> t
+(** [modify_creature t c] is [t] with [t.creature1 = c]. *)
+
+val has_revive : t -> bool
+(** [has_revive t] is the opposite of [t.revive_used], aka [not t.revive_used]. **)
+
 val all_dead : t -> bool
 (** [all_dead t] is whether or not all 3 of trainer [t]'s creatures are dead. If any one of
     them have more than 0 hp, then this function returns [false]. *)
@@ -34,6 +40,10 @@ val creature_of : t -> Creature.t
 
 val has_creature : t -> string -> bool
 (** [has_creature t c] is [true] if [c] is either the name of [t.creature1], [t.creature2], or
+    [t.creature3]. It returns [false] otherwise. *)
+
+val creature_not_in_battle : t -> string -> bool
+(** [creature_not_in_battle t c] is [true] if [c] is either the name of [t.creature2] or
     [t.creature3]. It returns [false] otherwise. *)
 
 val creature_with_name : t -> string -> Creature.t

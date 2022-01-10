@@ -65,7 +65,9 @@ let damage env move =
   | Accuracy a ->
       let accuracy_rng = Random.float 1. in
       if accuracy_rng < a *. hit_probability then damage_output *. (Random.float 0.2 +. 0.9)
-      else 0.
+      else (
+        print_endline "Attack missed";
+        0.)
   | Guarantee -> damage_output
 
 let determine_move env =
@@ -106,24 +108,74 @@ let modify_env_action env ac =
   if env.turn then { env with trainer1 = (env_trainer1, Some ac) }
   else { env with trainer2 = (env_trainer2, Some ac) }
 
-let process_turns env =
-  let trainer1, action1 = env.trainer1 in
-  let trainer2, action2 = env.trainer2 in
+let rec process_turns env =
+  match env.match_result with
+  | Battle -> begin
+      let trainer1, action1 = env.trainer1 in
+      let trainer2, action2 = env.trainer2 in
+      match (action1, action2) with
+      | None, None -> { env with turn = not (dead (creature_of trainer2)) }
+      | None, Some _ -> { env with turn = true }
+      | Some _, None -> { env with turn = false }
+      | Some a1, Some a2 -> process_actions env (a1, a2)
+    end
+  | winner -> env
+
+and process_actions env (action1, action2) =
+  let trainer1 = trainer env.trainer1 in
+  let trainer2 = trainer env.trainer2 in
+
   match (action1, action2) with
-  | None, None -> env
-  | None, Some _ -> { env with turn = true }
-  | Some _, None -> { env with turn = false }
-  | Some _, Some _ -> env
+  | Switch c1, Switch c2 ->
+      let trainer1_switch = switch trainer1 c1 in
+      let trainer2_switch = switch trainer2 c2 in
+      process_turns
+        { env with trainer1 = (trainer1_switch, None); trainer2 = (trainer2_switch, None) }
+  | Switch c1, Revive c2 ->
+      let trainer1_switch = switch trainer1 c1 in
+      let trainer2_revive = revive trainer2 c2 in
+      process_turns
+        { env with trainer1 = (trainer1_switch, None); trainer2 = (trainer2_revive, None) }
+  | Revive c1, Revive c2 ->
+      let trainer1_revive = revive trainer1 c1 in
+      let trainer2_revive = revive trainer2 c2 in
+      process_turns
+        { env with trainer1 = (trainer1_revive, None); trainer2 = (trainer2_revive, None) }
+  | Revive c1, Switch c2 ->
+      let trainer1_revive = revive (trainer env.trainer1) c1 in
+      let trainer2_switch = switch (trainer env.trainer2) c2 in
+      process_turns
+        { env with trainer1 = (trainer1_revive, None); trainer2 = (trainer2_switch, None) }
+  | MoveUsed m1, Switch c2 ->
+      let trainer2_switch = switch trainer2 c2 in
+      let switched_env = { env with trainer2 = (trainer2_switch, None) } in
+      let trainer1_creature = creature_of trainer1 in
+      let move_used = move_with_name trainer1_creature m1 in
+      let damage_output = damage switched_env move_used in
+      let trainer1_creature_use_move =
+        modify_creature trainer1 (use_move_with_name trainer1_creature m1)
+      in
+      let trainer2_damage_inflicted =
+        modify_creature trainer2_switch
+          (inflict_damage (creature_of trainer2_switch) damage_output)
+      in
+      process_turns
+        {
+          switched_env with
+          trainer1 = (trainer1_creature_use_move, None);
+          trainer2 = (trainer2_damage_inflicted, None);
+        }
+  | _ -> raise Not_found
 
 let next env act =
-  let env_turn_trainer = determine_move env in
+  let env_turn_trainer = trainer_from_turn env in
   let action_env =
     match act with
     | Switch c ->
-        if has_creature env_turn_trainer c then modify_env_action env act
+        if creature_not_in_battle env_turn_trainer c then modify_env_action env act
         else raise InvalidAction
     | Revive c ->
-        if has_creature env_turn_trainer c then
+        if has_creature env_turn_trainer c && has_revive env_turn_trainer then
           let creature = creature_with_name env_turn_trainer c in
           if dead creature then modify_env_action env act else raise InvalidAction
         else raise InvalidAction

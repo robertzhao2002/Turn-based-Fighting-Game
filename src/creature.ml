@@ -277,7 +277,7 @@ let creature_moves_string creature =
            acc ^ prefix ^ Move.name h ^ ": " ^ string_of_int h.uses ^ "/"
            ^ string_of_int (total_uses h)
            ^ " uses"
-          else prefix ^ Move.name h ^ ":" ^ "No uses left")
+          else prefix ^ Move.name h ^ ": No uses left")
           t
   in
   creature_moves_string_tr (creature.name ^ "'s Moves") creature.moves
