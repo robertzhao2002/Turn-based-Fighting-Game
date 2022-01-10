@@ -1,7 +1,5 @@
 exception Malformed
 
-(* The string here will represent the name of the creature or move *)
-
 type t =
   | Summary of string
   | Info of string

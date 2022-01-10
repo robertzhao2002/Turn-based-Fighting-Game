@@ -99,6 +99,10 @@ val move_with_name : t -> string -> Move.t
 (** [move_with_name c s] is a [Move.t] with name [s] if this move is one of creature [c]'s
     moves. Otherwise, raise [InvalidMove]. *)
 
+val has_move : t -> string -> bool
+(** [has_move c n] is [true] if [c] has a move named [n], and the number of uses is greater
+    than 0. It is [false] otherwise. *)
+
 val use_move_with_name : t -> string -> t
 (** [use_move_with_name c n] is creature [c] after a move of crature [c] with name[n] has been
     used. Raises [InvalidMove] if [n] is not one of [c]'s moves. Raises [Move.NoMoreUses] is

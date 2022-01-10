@@ -209,6 +209,13 @@ let rec find_move_with_name move_name = function
   | [] -> raise InvalidMove
   | h :: t -> if Move.name h = move_name then h else find_move_with_name move_name t
 
+let has_move creature move_name =
+  let rec has_move_helper n = function
+    | [] -> false
+    | h :: t -> if Move.name h = n && h.uses > 0 then true else has_move_helper n t
+  in
+  has_move_helper move_name creature.moves
+
 let use_move_with_name creature mname =
   let rec use_move_with_name_tr move_name acc = function
     | [] -> acc

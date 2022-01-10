@@ -1,8 +1,12 @@
 open Trainer
 open Random
+open Creature
 open Move
+open Command
 
 let () = Random.self_init ()
+
+exception InvalidAction
 
 type action =
   | Switch of string
@@ -20,34 +24,40 @@ type result =
   | Trainer2Win of string
 
 type t = {
-  trainer1 : Trainer.t;
-  trainer2 : Trainer.t;
+  trainer1 : Trainer.t * action option;
+  trainer2 : Trainer.t * action option;
   match_result : result;
   turn : bool;
 }
 
+let trainer trainer_action = fst trainer_action
+
 let result_of env =
-  if all_dead env.trainer1 then Trainer2Win (Trainer.name env.trainer2)
-  else if all_dead env.trainer2 then Trainer1Win (Trainer.name env.trainer1)
+  let trainer1 = trainer env.trainer1 in
+  let trainer2 = trainer env.trainer2 in
+  if all_dead trainer1 then Trainer2Win (Trainer.name trainer2)
+  else if all_dead trainer2 then Trainer1Win (Trainer.name trainer1)
   else Battle
 
 let trainer_from_turn env =
   match env.turn with
-  | true -> env.trainer1
-  | false -> env.trainer2
+  | true -> fst env.trainer1
+  | false -> fst env.trainer2
 
 let other_trainer env =
   match env.turn with
-  | true -> env.trainer2
-  | false -> env.trainer1
+  | true -> fst env.trainer2
+  | false -> fst env.trainer1
 
 let next_turn env = { env with turn = not env.turn }
 
 let damage env move =
   let trainer_creature, opponent_creature =
+    let trainer1 = trainer env.trainer1 in
+    let trainer2 = trainer env.trainer2 in
     match env.turn with
-    | true -> (creature_of env.trainer1, creature_of env.trainer2)
-    | false -> (creature_of env.trainer2, creature_of env.trainer1)
+    | true -> (creature_of trainer1, creature_of trainer2)
+    | false -> (creature_of trainer2, creature_of trainer1)
   in
   let hit_probability = trainer_creature.accuracy /. opponent_creature.evasiveness in
   let damage_output = trainer_creature.attack *. float_of_int move.power in
@@ -58,54 +68,69 @@ let damage env move =
       else 0.
   | Guarantee -> damage_output
 
-let determine_move trainer1 trainer2 =
+let determine_move env =
+  let trainer1 = trainer env.trainer1 in
+  let trainer2 = trainer env.trainer2 in
   let trainer1_creature_speed = (creature_of trainer1).speed in
   let trainer2_creature_speed = (creature_of trainer2).speed in
-  if trainer1_creature_speed > trainer2_creature_speed then true (* true is trainer1 turn *)
-  else if trainer2_creature_speed > trainer1_creature_speed then false
+  if trainer1_creature_speed > trainer2_creature_speed then trainer1
+    (* true is trainer1 turn *)
+  else if trainer2_creature_speed > trainer1_creature_speed then trainer2
     (* false is trainer2 turn *)
-  else Random.bool ()
+  else
+    match Random.bool () with
+    | true -> trainer1
+    | false -> trainer2
 
-let init t1 t2 = { trainer1 = t1; trainer2 = t2; turn = true; match_result = Battle }
+let init t1 t2 =
+  { trainer1 = (t1, None); trainer2 = (t2, None); turn = true; match_result = Battle }
 
 let dead_action env action =
   match env.turn with
   | true -> true
   | false -> false
 
-let winner env =
+let trainer_surrender env =
+  let trainer1 = trainer env.trainer1 in
+  let trainer2 = trainer env.trainer2 in
   match env.turn with
-  | true -> Trainer2Win (Trainer.name env.trainer2)
-  | false -> Trainer1Win (Trainer.name env.trainer1)
+  | true -> Trainer2Win (Trainer.name trainer2)
+  | false -> Trainer1Win (Trainer.name trainer1)
 
-let modify_env_turn env tr =
+let modify_env_trainer env tr =
   if env.turn then { env with trainer1 = tr } else { env with trainer2 = tr }
 
-let next env action1 =
-  let env_turn_trainer = trainer_from_turn env in
-  match action1 with
-  | Switch c ->
-      let tr_switch = Trainer.switch env_turn_trainer c in
-      let new_env = modify_env_turn env tr_switch in
-      { new_env with turn = not env.turn }
-  | Revive c ->
-      let tr_revive = Trainer.revive env_turn_trainer c in
-      let new_env = modify_env_turn env tr_revive in
-      { new_env with turn = not env.turn }
-  | Surrender -> { env with match_result = winner env }
-  | MoveUsed _ -> raise (Failure "Should be impossible")
+let modify_env_action env ac =
+  let env_trainer1 = trainer env.trainer1 in
+  let env_trainer2 = trainer env.trainer2 in
+  if env.turn then { env with trainer1 = (env_trainer1, Some ac) }
+  else { env with trainer2 = (env_trainer2, Some ac) }
 
-let next_wrong env action1 action2 =
+let process_turns env =
+  let trainer1, action1 = env.trainer1 in
+  let trainer2, action2 = env.trainer2 in
   match (action1, action2) with
-  | Switch creature_name1, Revive creature_name2 ->
-      let trainer1_switch = Trainer.switch env.trainer1 creature_name1 in
-      let trainer2_revive = Trainer.revive env.trainer2 creature_name2 in
-      { env with trainer1 = trainer1_switch; trainer2 = trainer2_revive }
-  | Revive creature_name1, Switch creature_name2 ->
-      let trainer1_revive = Trainer.revive env.trainer1 creature_name1 in
-      let trainer2_switch = Trainer.switch env.trainer2 creature_name2 in
-      { env with trainer1 = trainer1_revive; trainer2 = trainer2_switch }
-  | _, Surrender -> { env with match_result = Trainer2Win (Trainer.name env.trainer2) }
-  | Surrender, _ -> { env with match_result = Trainer1Win (Trainer.name env.trainer1) }
-  (* | MoveUsed move1, MoveUsed move2 *)
-  | _ -> raise Not_found
+  | None, None -> env
+  | None, Some _ -> { env with turn = true }
+  | Some _, None -> { env with turn = false }
+  | Some _, Some _ -> env
+
+let next env act =
+  let env_turn_trainer = determine_move env in
+  let action_env =
+    match act with
+    | Switch c ->
+        if has_creature env_turn_trainer c then modify_env_action env act
+        else raise InvalidAction
+    | Revive c ->
+        if has_creature env_turn_trainer c then
+          let creature = creature_with_name env_turn_trainer c in
+          if dead creature then modify_env_action env act else raise InvalidAction
+        else raise InvalidAction
+    | Surrender -> { env with match_result = trainer_surrender env }
+    | MoveUsed move_name ->
+        let turn_creature = creature_of env_turn_trainer in
+        if has_move turn_creature move_name then modify_env_action env act
+        else raise InvalidAction
+  in
+  process_turns action_env

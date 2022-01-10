@@ -1,3 +1,5 @@
+exception InvalidAction
+
 type action =
   | Switch of string
   | MoveUsed of string
@@ -10,8 +12,8 @@ type result =
   | Trainer2Win of string
 
 type t = {
-  trainer1 : Trainer.t;
-  trainer2 : Trainer.t;
+  trainer1 : Trainer.t * action option;
+  trainer2 : Trainer.t * action option;
   match_result : result;
   turn : bool;
 }
@@ -32,9 +34,6 @@ val result_of : t -> result
 (** [result_of env] is the current state of the match. Either the match is in progress
     ([Battle] will be returned), or a trainer has won ([Trainer1Win] or [Trainer2Win] will be
     returned based on the victory of the corresponding trainer). *)
-
-val next_turn : t -> t
-(** [next_turn env] is [env] with [env.turn] toggled to the opposite of what it was before. *)
 
 val next : t -> action -> t
 (** [next env action1] is the state of the game environment after 1 turn by the trainer

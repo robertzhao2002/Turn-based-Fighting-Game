@@ -32,8 +32,8 @@ val creature_of : t -> Creature.t
 (** [creature_of t] is the first creature of trainer [t]. It is the creature that is currently
     on the battle environment. *)
 
-val has_creature : t -> Creature.t -> bool
-(** [has_creature t c] is [true] if [c] is either [t.creature1], [t.creature2], or
+val has_creature : t -> string -> bool
+(** [has_creature t c] is [true] if [c] is either the name of [t.creature1], [t.creature2], or
     [t.creature3]. It returns [false] otherwise. *)
 
 val creature_with_name : t -> string -> Creature.t

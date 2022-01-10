@@ -31,8 +31,10 @@ let all_alive trainer =
 let all_dead trainer =
   dead trainer.creature1 && dead trainer.creature2 && dead trainer.creature3
 
-let has_creature trainer creature =
-  trainer.creature1 = creature || trainer.creature2 = creature || trainer.creature3 = creature
+let has_creature trainer creature_name =
+  String.lowercase_ascii trainer.creature1.name = creature_name
+  || String.lowercase_ascii trainer.creature2.name = creature_name
+  || String.lowercase_ascii trainer.creature3.name = creature_name
 
 let creature_with_name trainer n =
   if String.lowercase_ascii trainer.creature1.name = n then trainer.creature1
@@ -65,9 +67,9 @@ let revive (trainer : t) revived_name =
   match trainer.revive_used with
   | true -> raise NoMoreRevives
   | false ->
-      let c1name = trainer.creature1.name in
-      let c2name = trainer.creature2.name in
-      let c3name = trainer.creature3.name in
+      let c1name = String.lowercase_ascii trainer.creature1.name in
+      let c2name = String.lowercase_ascii trainer.creature2.name in
+      let c3name = String.lowercase_ascii trainer.creature3.name in
       if all_alive trainer then raise NoCreaturesDead
       else if revived_name = c1name then
         if dead trainer.creature1 then
