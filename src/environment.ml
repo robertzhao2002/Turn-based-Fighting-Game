@@ -1,7 +1,7 @@
 open Trainer
 open Random
-open Creature
 open Move
+open Creature
 open Command
 
 let () = Random.self_init ()
@@ -20,6 +20,7 @@ type game_mode =
 
 type result =
   | Battle
+  | CreatureDead
   | Trainer1Win of string
   | Trainer2Win of string
 
@@ -51,14 +52,7 @@ let other_trainer env =
 
 let next_turn env = { env with turn = not env.turn }
 
-let damage env move =
-  let trainer_creature, opponent_creature =
-    let trainer1 = trainer env.trainer1 in
-    let trainer2 = trainer env.trainer2 in
-    match env.turn with
-    | true -> (creature_of trainer1, creature_of trainer2)
-    | false -> (creature_of trainer2, creature_of trainer1)
-  in
+let damage trainer_creature opponent_creature move =
   let hit_probability = trainer_creature.accuracy /. opponent_creature.evasiveness in
   let damage_output = trainer_creature.attack *. float_of_int move.power in
   match move.accuracy with
@@ -108,6 +102,20 @@ let modify_env_action env ac =
   if env.turn then { env with trainer1 = (env_trainer1, Some ac) }
   else { env with trainer2 = (env_trainer2, Some ac) }
 
+let switch_attack (trainer1, mv) (trainer2, cr) =
+  let trainer2_switch = switch trainer2 cr in
+  let trainer1_creature = creature_of trainer1 in
+  let move_used = move_with_name trainer1_creature mv in
+  let damage_output = damage trainer1_creature (creature_of trainer2_switch) move_used in
+  let trainer1_creature_use_move =
+    modify_creature trainer1 (use_move_with_name trainer1_creature mv)
+  in
+  let trainer2_damage_inflicted =
+    modify_creature trainer2_switch
+      (inflict_damage (creature_of trainer2_switch) damage_output)
+  in
+  (trainer1_creature_use_move, trainer2_damage_inflicted)
+
 let rec process_turns env =
   match env.match_result with
   | Battle -> begin
@@ -119,12 +127,12 @@ let rec process_turns env =
       | Some _, None -> { env with turn = false }
       | Some a1, Some a2 -> process_actions env (a1, a2)
     end
+  | CreatureDead -> env
   | winner -> env
 
 and process_actions env (action1, action2) =
   let trainer1 = trainer env.trainer1 in
   let trainer2 = trainer env.trainer2 in
-
   match (action1, action2) with
   | Switch c1, Switch c2 ->
       let trainer1_switch = switch trainer1 c1 in
@@ -147,23 +155,24 @@ and process_actions env (action1, action2) =
       process_turns
         { env with trainer1 = (trainer1_revive, None); trainer2 = (trainer2_switch, None) }
   | MoveUsed m1, Switch c2 ->
-      let trainer2_switch = switch trainer2 c2 in
-      let switched_env = { env with trainer2 = (trainer2_switch, None) } in
-      let trainer1_creature = creature_of trainer1 in
-      let move_used = move_with_name trainer1_creature m1 in
-      let damage_output = damage switched_env move_used in
-      let trainer1_creature_use_move =
-        modify_creature trainer1 (use_move_with_name trainer1_creature m1)
-      in
-      let trainer2_damage_inflicted =
-        modify_creature trainer2_switch
-          (inflict_damage (creature_of trainer2_switch) damage_output)
+      let trainer1_creature_use_move, trainer2_damage_inflicted =
+        switch_attack (trainer1, m1) (trainer2, c2)
       in
       process_turns
         {
-          switched_env with
+          env with
           trainer1 = (trainer1_creature_use_move, None);
           trainer2 = (trainer2_damage_inflicted, None);
+        }
+  | Switch c1, MoveUsed m2 ->
+      let trainer2_creature_use_move, trainer1_damage_inflicted =
+        switch_attack (trainer2, m2) (trainer1, c1)
+      in
+      process_turns
+        {
+          env with
+          trainer1 = (trainer1_damage_inflicted, None);
+          trainer2 = (trainer2_creature_use_move, None);
         }
   | _ -> raise Not_found
 
