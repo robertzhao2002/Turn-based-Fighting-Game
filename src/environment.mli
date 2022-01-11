@@ -8,8 +8,9 @@ type action =
 
 type result =
   | Battle
-  | Trainer1Win of string
-  | Trainer2Win of string
+  | CreatureDead
+  | Trainer1Win of string * string
+  | Trainer2Win of string * string
 
 type t = {
   trainer1 : Trainer.t * action option;

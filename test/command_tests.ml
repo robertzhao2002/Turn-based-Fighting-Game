@@ -4,6 +4,9 @@ open Game.Command
 let parse_test name input expected_output =
   name >:: fun _ -> parse input |> assert_equal expected_output
 
+let parse_phrase_test name input expected_output =
+  name >:: fun _ -> parse_phrase input |> assert_equal expected_output
+
 let parse_excep_test name str exn = name >:: fun _ -> assert_raises exn (fun () -> parse str)
 
 let parse_tests =
@@ -31,7 +34,14 @@ let parse_excep_tests =
     parse_excep_test "surrender sbdfbsddf" "surrender sbdfbsddf" Malformed;
   ]
 
+let parse_phrase_tests =
+  [
+    parse_phrase_test "     hello       world    " "     hello       world    " "hello world";
+    parse_phrase_test "  hElLo     " "  hElLo     " "hello";
+  ]
+
 let suite =
-  "test suite for Command module" >::: List.flatten [ parse_tests; parse_excep_tests ]
+  "test suite for Command module"
+  >::: List.flatten [ parse_tests; parse_excep_tests; parse_phrase_tests ]
 
 let _ = run_test_tt_main suite

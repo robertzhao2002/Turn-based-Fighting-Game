@@ -38,12 +38,14 @@ let print_move_info_string env name =
   in
   ANSITerminal.print_string [ determine_print_color env ] (move_string move ^ "\n")
 
-let print_surrender_string env =
-  let trainer = trainer_from_turn env in
+let print_surrender_string winner loser env =
   ANSITerminal.print_string [ determine_print_color env ]
-    (Game.Trainer.name trainer ^ " has surrendered! "
-    ^ Game.Trainer.name (other_trainer env)
-    ^ " has won the match!\n")
+    (loser ^ " has surrendered! " ^ winner ^ " has won the match!\n")
+
+let print_died name revivable =
+  ANSITerminal.print_string [ ANSITerminal.green ]
+    (name ^ " has died. Please send in a new creature"
+    ^ if revivable then " or revive\n" else "\n")
 
 (* Game *)
 
@@ -62,33 +64,44 @@ let input_helper () =
   | Malformed -> Summary "\n"
 
 let rec get_current_env env turn_changed =
-  if turn_changed then print_trainer env;
-  match input_helper () with
-  | Summary creature_name ->
-      (if creature_name = "\n" then print_invalid_input ()
-      else
-        try print_summary_string env creature_name with
-        | Not_found -> print_invalid_creature ());
-      get_current_env env false
-  | Info move_name ->
-      (try print_move_info_string env move_name with
-      | Not_found -> print_invalid_move ());
-      get_current_env env false
-  | UseMove move_name ->
-      let new_env = next env (MoveUsed move_name) in
-      get_current_env new_env true
-  | Command_Revive revive_creature ->
-      let new_env = next env (Revive revive_creature) in
-      get_current_env new_env true
-  | Command_Switch new_creature ->
-      let new_env = next env (Switch new_creature) in
-      get_current_env new_env true
-  | Surrender ->
-      print_surrender_string env;
+  match env.match_result with
+  | CreatureDead ->
+      let trainer = trainer_from_turn env in
+      print_died (Game.Creature.name (creature_of trainer)) (has_revive trainer);
       exit 0
-  | Quit ->
-      print_quitting ();
+  | Trainer1Win (winner, loser)
+  | Trainer2Win (winner, loser) ->
+      print_surrender_string winner loser env;
       exit 0
+  | Battle -> begin
+      if turn_changed then print_trainer env;
+      match input_helper () with
+      | Summary creature_name ->
+          (if creature_name = "\n" then print_invalid_input ()
+          else
+            try print_summary_string env creature_name with
+            | Not_found -> print_invalid_creature ());
+          get_current_env env false
+      | Info move_name ->
+          (try print_move_info_string env move_name with
+          | Not_found -> print_invalid_move ());
+          get_current_env env false
+      | UseMove move_name ->
+          let new_env = next env (MoveUsed move_name) in
+          get_current_env new_env true
+      | Command_Revive revive_creature ->
+          let new_env = next env (Revive revive_creature) in
+          get_current_env new_env true
+      | Command_Switch new_creature ->
+          let new_env = next env (Switch new_creature) in
+          get_current_env new_env true
+      | Surrender ->
+          let new_env = next env Surrender in
+          get_current_env new_env true
+      | Quit ->
+          print_quitting ();
+          exit 0
+    end
 
 let main () =
   ANSITerminal.print_string [ ANSITerminal.cyan ] "Turn-Based Fighting Game Engine\n";

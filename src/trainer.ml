@@ -65,7 +65,6 @@ let switch trainer creature_name =
     try other_creature_with_name trainer creature_name with
     | InvalidCreature -> raise InvalidCreature
   in
-  print_endline (string_of_int order);
   let switched_out = Creature.reset_stats trainer.creature1 true in
   match order with
   | 2 -> { trainer with creature1 = new_battling_creature; creature2 = switched_out }

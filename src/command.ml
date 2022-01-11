@@ -21,6 +21,11 @@ let rest_words = function
   | [] -> raise Malformed
   | _ :: t -> t
 
+let parse_phrase s =
+  let formatted = format s in
+  let words_list = String.split_on_char ' ' formatted |> get_words_no_spaces in
+  String.concat " " words_list
+
 let parse s =
   let formatted = format s in
   let words_list = String.split_on_char ' ' formatted |> get_words_no_spaces in

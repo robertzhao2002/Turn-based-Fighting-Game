@@ -21,8 +21,8 @@ type game_mode =
 type result =
   | Battle
   | CreatureDead
-  | Trainer1Win of string
-  | Trainer2Win of string
+  | Trainer1Win of string * string
+  | Trainer2Win of string * string
 
 type t = {
   trainer1 : Trainer.t * action option;
@@ -36,8 +36,8 @@ let trainer trainer_action = fst trainer_action
 let result_of env =
   let trainer1 = trainer env.trainer1 in
   let trainer2 = trainer env.trainer2 in
-  if all_dead trainer1 then Trainer2Win (Trainer.name trainer2)
-  else if all_dead trainer2 then Trainer1Win (Trainer.name trainer1)
+  if all_dead trainer1 then Trainer2Win (Trainer.name trainer2, Trainer.name trainer1)
+  else if all_dead trainer2 then Trainer1Win (Trainer.name trainer1, Trainer.name trainer2)
   else Battle
 
 let trainer_from_turn env =
@@ -90,8 +90,8 @@ let trainer_surrender env =
   let trainer1 = trainer env.trainer1 in
   let trainer2 = trainer env.trainer2 in
   match env.turn with
-  | true -> Trainer2Win (Trainer.name trainer2)
-  | false -> Trainer1Win (Trainer.name trainer1)
+  | true -> Trainer2Win (Trainer.name trainer2, Trainer.name trainer1)
+  | false -> Trainer1Win (Trainer.name trainer1, Trainer.name trainer2)
 
 let modify_env_trainer env tr =
   if env.turn then { env with trainer1 = tr } else { env with trainer2 = tr }
@@ -122,13 +122,12 @@ let rec process_turns env =
       let trainer1, action1 = env.trainer1 in
       let trainer2, action2 = env.trainer2 in
       match (action1, action2) with
-      | None, None -> { env with turn = not (dead (creature_of trainer2)) }
-      | None, Some _ -> { env with turn = true }
+      | None, _ -> { env with turn = true }
       | Some _, None -> { env with turn = false }
       | Some a1, Some a2 -> process_actions env (a1, a2)
     end
   | CreatureDead -> env
-  | winner -> env
+  | winner -> next_turn env
 
 and process_actions env (action1, action2) =
   let trainer1 = trainer env.trainer1 in
@@ -163,6 +162,8 @@ and process_actions env (action1, action2) =
           env with
           trainer1 = (trainer1_creature_use_move, None);
           trainer2 = (trainer2_damage_inflicted, None);
+          match_result =
+            (if dead (creature_of trainer2_damage_inflicted) then CreatureDead else Battle);
         }
   | Switch c1, MoveUsed m2 ->
       let trainer2_creature_use_move, trainer1_damage_inflicted =
@@ -173,6 +174,8 @@ and process_actions env (action1, action2) =
           env with
           trainer1 = (trainer1_damage_inflicted, None);
           trainer2 = (trainer2_creature_use_move, None);
+          match_result =
+            (if dead (creature_of trainer1_damage_inflicted) then CreatureDead else Battle);
         }
   | _ -> raise Not_found
 
