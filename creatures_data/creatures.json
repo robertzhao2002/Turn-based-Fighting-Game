@@ -17,7 +17,8 @@
       "defense": 110.0,
       "speed": 95.0,
       "moves": [
-        "yell"
+        "yell",
+        "nutty"
       ]
     },
     {

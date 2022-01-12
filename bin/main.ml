@@ -75,11 +75,22 @@ let input_helper () =
   try parse (read_line ()) with
   | Malformed -> Summary "\n"
 
-let rec send_in_helper trainer =
-  try creature_with_name trainer (parse_phrase (read_line ())) with
-  | Game.Trainer.InvalidCreature ->
-      print_invalid_creature ();
-      send_in_helper trainer
+let rec send_in_helper env =
+  let trainer = trainer_from_turn env in
+  let other = other_trainer env in
+  let input = parse_phrase (read_line ()) in
+  match input with
+  | "surrender" ->
+      print_surrender_string (Game.Trainer.name other) (Game.Trainer.name trainer) env;
+      exit 0
+  | "quit" ->
+      print_quitting ();
+      exit 0
+  | _ -> (
+      try creature_with_name trainer input with
+      | Game.Trainer.InvalidCreature ->
+          print_invalid_creature ();
+          send_in_helper env)
 
 let rec get_current_env env turn_changed surrendered =
   match env.match_result with
@@ -87,7 +98,7 @@ let rec get_current_env env turn_changed surrendered =
       let trainer = trainer_from_turn env in
       print_trainer env;
       print_died (Game.Creature.name (creature_of trainer)) (has_revive trainer);
-      let creature = send_in_helper trainer in
+      let creature = send_in_helper env in
       let new_env = dead_action env creature in
       get_current_env new_env true false
   | Trainer1Win (winner, loser)

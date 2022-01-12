@@ -163,7 +163,12 @@ and process_actions env (action1, action2) =
           trainer1 = (trainer1_creature_use_move, None);
           trainer2 = (trainer2_damage_inflicted, None);
           match_result =
-            (if dead (creature_of trainer2_damage_inflicted) then CreatureDead false
+            (if dead (creature_of trainer2_damage_inflicted) then
+             if all_dead trainer2_damage_inflicted then
+               Trainer1Win
+                 ( Trainer.name trainer1_creature_use_move,
+                   Trainer.name trainer2_damage_inflicted )
+             else CreatureDead false
             else Battle);
         }
   | Switch c1, MoveUsed m2 ->
@@ -176,7 +181,12 @@ and process_actions env (action1, action2) =
           trainer1 = (trainer1_damage_inflicted, None);
           trainer2 = (trainer2_creature_use_move, None);
           match_result =
-            (if dead (creature_of trainer1_damage_inflicted) then CreatureDead true
+            (if dead (creature_of trainer1_damage_inflicted) then
+             if all_dead trainer1_damage_inflicted then
+               Trainer2Win
+                 ( Trainer.name trainer2_creature_use_move,
+                   Trainer.name trainer1_damage_inflicted )
+             else CreatureDead true
             else Battle);
         }
   | _ -> raise Not_found
