@@ -1,9 +1,13 @@
 exception Malformed
 
+type info_type =
+  | InfoCurrent of string
+  | InfoOther of string * string
+
 (** This is the type [t] that represents what a command can be translated into. *)
 type t =
   | Summary of string
-  | Info of string
+  | Info of info_type
   | UseMove of string
   | Command_Switch of string
   | Command_Revive of string

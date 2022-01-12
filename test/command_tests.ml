@@ -4,6 +4,12 @@ open Game.Command
 let parse_test name input expected_output =
   name >:: fun _ -> parse input |> assert_equal expected_output
 
+let parse_info_test name input expected_output =
+  name >:: fun _ ->
+  match parse input with
+  | Info a -> a |> assert_equal expected_output
+  | _ -> raise (Failure "impossible")
+
 let parse_phrase_test name input expected_output =
   name >:: fun _ -> parse_phrase input |> assert_equal expected_output
 
@@ -14,7 +20,10 @@ let parse_tests =
     parse_test "    qUiT    will parse to Quit" "    qUiT   " Quit;
     parse_test "suRRenDer    will parse to Quit" "suRRenDer   " Surrender;
     parse_test "    sUmMary       CREATURE" "    sUmMary       CREATURE" (Summary "creature");
-    parse_test "info this     attack" "info this     attack" (Info "this attack");
+    parse_info_test "info this     attack" "info this     attack" (InfoCurrent "this attack");
+    parse_info_test "info this Creature;  this     attack"
+      "info this Creature;  this     attack"
+      (InfoOther ("this creature", "this attack"));
     parse_test "use       attack" "use       attack" (UseMove "attack");
     parse_test "switch creature2" "switch creature2" (Command_Switch "creature2");
     parse_test "revive this creature now" "revive this creature now"

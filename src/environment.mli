@@ -8,7 +8,7 @@ type action =
 
 type result =
   | Battle
-  | CreatureDead
+  | CreatureDead of bool
   | Trainer1Win of string * string
   | Trainer2Win of string * string
 
@@ -35,6 +35,9 @@ val result_of : t -> result
 (** [result_of env] is the current state of the match. Either the match is in progress
     ([Battle] will be returned), or a trainer has won ([Trainer1Win] or [Trainer2Win] will be
     returned based on the victory of the corresponding trainer). *)
+
+val dead_action : t -> Creature.t -> t
+(** [dead_action env creature] is [env] after [creature] is either revived or switched out. *)
 
 val next : t -> action -> t
 (** [next env action1] is the state of the game environment after 1 turn by the trainer

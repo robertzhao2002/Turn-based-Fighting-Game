@@ -20,7 +20,7 @@ type game_mode =
 
 type result =
   | Battle
-  | CreatureDead
+  | CreatureDead of bool
   | Trainer1Win of string * string
   | Trainer2Win of string * string
 
@@ -126,7 +126,7 @@ let rec process_turns env =
       | Some _, None -> { env with turn = false }
       | Some a1, Some a2 -> process_actions env (a1, a2)
     end
-  | CreatureDead -> env
+  | CreatureDead turn -> { env with turn }
   | winner -> next_turn env
 
 and process_actions env (action1, action2) =
@@ -163,7 +163,8 @@ and process_actions env (action1, action2) =
           trainer1 = (trainer1_creature_use_move, None);
           trainer2 = (trainer2_damage_inflicted, None);
           match_result =
-            (if dead (creature_of trainer2_damage_inflicted) then CreatureDead else Battle);
+            (if dead (creature_of trainer2_damage_inflicted) then CreatureDead false
+            else Battle);
         }
   | Switch c1, MoveUsed m2 ->
       let trainer2_creature_use_move, trainer1_damage_inflicted =
@@ -175,9 +176,21 @@ and process_actions env (action1, action2) =
           trainer1 = (trainer1_damage_inflicted, None);
           trainer2 = (trainer2_creature_use_move, None);
           match_result =
-            (if dead (creature_of trainer1_damage_inflicted) then CreatureDead else Battle);
+            (if dead (creature_of trainer1_damage_inflicted) then CreatureDead true
+            else Battle);
         }
   | _ -> raise Not_found
+
+let dead_action env creature =
+  let env_turn_trainer = trainer_from_turn env in
+  if dead creature && has_revive env_turn_trainer then
+    let tr_revive = revive env_turn_trainer creature.name in
+    let new_env = modify_env_trainer env (tr_revive, None) in
+    process_turns { new_env with match_result = Battle }
+  else
+    let tr_switch = switch env_turn_trainer creature.name in
+    let new_env = modify_env_trainer env (tr_switch, None) in
+    process_turns { new_env with match_result = Battle }
 
 let next env act =
   let env_turn_trainer = trainer_from_turn env in

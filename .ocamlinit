@@ -1,3 +1,5 @@
 #use_output "dune top";;
 open Game;;
+#use "src/command.ml";;
 #use "src/move.ml";;
+#use "src/creature.ml";;
