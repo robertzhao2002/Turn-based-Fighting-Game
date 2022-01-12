@@ -189,6 +189,7 @@ and process_actions env (action1, action2) =
              else CreatureDead true
             else Battle);
         }
+  | MoveUsed m1, MoveUsed m2 -> env
   | _ -> raise Not_found
 
 let dead_action env creature =

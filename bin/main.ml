@@ -118,13 +118,28 @@ let rec get_current_env env turn_changed surrendered =
           info_helper env move_name;
           get_current_env env false false
       | UseMove move_name ->
-          let new_env = next env (MoveUsed move_name) in
+          let new_env =
+            try next env (MoveUsed move_name) with
+            | InvalidAction ->
+                print_invalid_move ();
+                env
+          in
           get_current_env new_env true false
       | Command_Revive revive_creature ->
-          let new_env = next env (Revive revive_creature) in
+          let new_env =
+            try next env (Revive revive_creature) with
+            | InvalidAction ->
+                print_invalid_creature ();
+                env
+          in
           get_current_env new_env true false
       | Command_Switch new_creature ->
-          let new_env = next env (Switch new_creature) in
+          let new_env =
+            try next env (Switch new_creature) with
+            | InvalidAction ->
+                print_invalid_creature ();
+                env
+          in
           get_current_env new_env true false
       | Surrender ->
           let new_env = next env Surrender in
