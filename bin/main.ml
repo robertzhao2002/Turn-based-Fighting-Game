@@ -99,7 +99,12 @@ let rec get_current_env env turn_changed surrendered =
       print_trainer env;
       print_died (Game.Creature.name (creature_of trainer)) (has_revive trainer);
       let creature = send_in_helper env in
-      let new_env = dead_action env creature in
+      let new_env =
+        try dead_action env creature with
+        | InvalidAction ->
+            print_invalid_creature ();
+            env
+      in
       get_current_env new_env true false
   | Trainer1Win (winner, loser)
   | Trainer2Win (winner, loser) ->

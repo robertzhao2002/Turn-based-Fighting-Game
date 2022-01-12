@@ -72,6 +72,11 @@ val inflict_status : t -> Move.effect -> t * bool
     [c] already has the given status condition, then it will apply them, rather than treating
     the status effect as an initial trigger. *)
 
+val inflict_multiple_status : t -> Move.effect list -> t * bool
+(** [inflict_multiple_status c s] is similar to [inflict_status] except it inflicts a list of
+    status effects. If any of the effects cause a turn to be used up, the second element of the
+    tuple is [true]; false otherwise. *)
+
 val apply_poison : t -> t
 (** [apply_poison c] is creature [c] with 5% less hp if [c.poison] is [true]. If [c] is not
     poisoned, then [c] is returned. *)

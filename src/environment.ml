@@ -54,7 +54,10 @@ let next_turn env = { env with turn = not env.turn }
 
 let damage trainer_creature opponent_creature move =
   let hit_probability = trainer_creature.accuracy /. opponent_creature.evasiveness in
-  let damage_output = trainer_creature.attack *. float_of_int move.power in
+  let damage_output =
+    ((trainer_creature.attack /. opponent_creature.defense) +. 50.)
+    *. float_of_int move.power /. 50.
+  in
   match move.accuracy with
   | Accuracy a ->
       let accuracy_rng = Random.float 1. in
@@ -63,6 +66,14 @@ let damage trainer_creature opponent_creature move =
         print_endline "Attack missed";
         0.)
   | Guarantee -> damage_output
+
+let apply_move move creature1 creature2 =
+  let damage_output = damage creature1 creature2 move in
+  let effects = move.meffect in
+  let creature_with_effects, turn_used =
+    if damage_output > 0. then inflict_multiple_status creature2 effects else (creature2, false)
+  in
+  (inflict_damage creature_with_effects damage_output, turn_used)
 
 let determine_move env =
   let trainer1 = trainer env.trainer1 in
@@ -102,19 +113,37 @@ let modify_env_action env ac =
   if env.turn then { env with trainer1 = (env_trainer1, Some ac) }
   else { env with trainer2 = (env_trainer2, Some ac) }
 
-let switch_attack (trainer1, mv) (trainer2, cr) =
+let use_move move trainer1 trainer2 =
+  let trainer1_creature, paralyze_turn = creature_of trainer1 |> apply_paralysis in
+  match paralyze_turn with
+  | true ->
+      let paralyzed_creature_trainer = modify_creature trainer1 trainer1_creature in
+      (paralyzed_creature_trainer, trainer2, paralyze_turn)
+  | false -> begin
+      let trainer1_creature_not_paralyzed, confusion_turn =
+        trainer1_creature |> apply_confusion
+      in
+      match confusion_turn with
+      | false ->
+          let move_used = move_with_name trainer1_creature_not_paralyzed move in
+          let new_trainer2_creature, turn_used =
+            apply_move move_used trainer1_creature_not_paralyzed (creature_of trainer2)
+          in
+          let trainer1_creature_use_move =
+            modify_creature trainer1 (use_move_with_name trainer1_creature_not_paralyzed move)
+          in
+          let trainer2_damage_inflicted = modify_creature trainer2 new_trainer2_creature in
+          (trainer1_creature_use_move, trainer2_damage_inflicted, turn_used)
+      | true ->
+          let trainer1_hurt_itself =
+            modify_creature trainer1 trainer1_creature_not_paralyzed
+          in
+          (trainer1_hurt_itself, trainer2, confusion_turn)
+    end
+
+let switch_and_move (trainer1, mv) (trainer2, cr) =
   let trainer2_switch = switch trainer2 cr in
-  let trainer1_creature = creature_of trainer1 in
-  let move_used = move_with_name trainer1_creature mv in
-  let damage_output = damage trainer1_creature (creature_of trainer2_switch) move_used in
-  let trainer1_creature_use_move =
-    modify_creature trainer1 (use_move_with_name trainer1_creature mv)
-  in
-  let trainer2_damage_inflicted =
-    modify_creature trainer2_switch
-      (inflict_damage (creature_of trainer2_switch) damage_output)
-  in
-  (trainer1_creature_use_move, trainer2_damage_inflicted)
+  use_move mv trainer1 trainer2_switch
 
 let rec process_turns env =
   match env.match_result with
@@ -154,8 +183,8 @@ and process_actions env (action1, action2) =
       process_turns
         { env with trainer1 = (trainer1_revive, None); trainer2 = (trainer2_switch, None) }
   | MoveUsed m1, Switch c2 ->
-      let trainer1_creature_use_move, trainer2_damage_inflicted =
-        switch_attack (trainer1, m1) (trainer2, c2)
+      let trainer1_creature_use_move, trainer2_damage_inflicted, _ =
+        switch_and_move (trainer1, m1) (trainer2, c2)
       in
       process_turns
         {
@@ -172,8 +201,8 @@ and process_actions env (action1, action2) =
             else Battle);
         }
   | Switch c1, MoveUsed m2 ->
-      let trainer2_creature_use_move, trainer1_damage_inflicted =
-        switch_attack (trainer2, m2) (trainer1, c1)
+      let trainer2_creature_use_move, trainer1_damage_inflicted, _ =
+        switch_and_move (trainer2, m2) (trainer1, c1)
       in
       process_turns
         {
@@ -199,7 +228,10 @@ let dead_action env creature =
     let new_env = modify_env_trainer env (tr_revive, None) in
     process_turns { new_env with match_result = Battle }
   else
-    let tr_switch = switch env_turn_trainer creature.name in
+    let tr_switch =
+      try switch env_turn_trainer creature.name with
+      | InvalidCreature -> raise InvalidAction
+    in
     let new_env = modify_env_trainer env (tr_switch, None) in
     process_turns { new_env with match_result = Battle }
 

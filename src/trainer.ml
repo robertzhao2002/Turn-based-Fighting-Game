@@ -80,6 +80,7 @@ let revive (trainer : t) revived_name =
   match trainer.revive_used with
   | true -> raise NoMoreRevives
   | false ->
+      let revived_name = String.lowercase_ascii revived_name in
       let c1name = String.lowercase_ascii trainer.creature1.name in
       let c2name = String.lowercase_ascii trainer.creature2.name in
       let c3name = String.lowercase_ascii trainer.creature3.name in

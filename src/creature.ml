@@ -205,6 +205,16 @@ let inflict_status c = function
     end
   | Poison prob -> (health_within_range { c with poison = Random.float 1. < prob }, false)
 
+let inflict_multiple_status creature effects =
+  let rec inflict_multiple_status_tr effects (current_creature, use_turn) =
+    match effects with
+    | [] -> (current_creature, use_turn)
+    | h :: t ->
+        let new_creature, turn_used = inflict_status current_creature h in
+        inflict_multiple_status_tr t (new_creature, turn_used || use_turn)
+  in
+  inflict_multiple_status_tr effects (creature, false)
+
 let rec find_move_with_name move_name = function
   | [] -> raise InvalidMove
   | h :: t -> if Move.name h = move_name then h else find_move_with_name move_name t

@@ -16,7 +16,7 @@ type t =
 let format str = str |> String.trim |> String.lowercase_ascii
 
 let rec get_words_no_spaces str_lst =
-  List.map String.lowercase_ascii (List.filter (( <> ) "") str_lst)
+  List.map String.lowercase_ascii (List.filter (( <> ) "") str_lst) |> List.map String.trim
 
 let first_word = function
   | [] -> raise Malformed
