@@ -11,6 +11,7 @@ test:
 	OCAMLRUNPARAM=b dune exec test/move_tests.exe
 	OCAMLRUNPARAM=b dune exec test/creature_tests.exe
 	OCAMLRUNPARAM=b dune exec test/trainer_tests.exe
+	OCAMLRUNPARAM=b dune exec test/typematchup_tests.exe
 
 command_tests:
 	OCAMLRUNPARAM=b dune exec test/command_tests.exe
@@ -23,6 +24,9 @@ move_tests:
 
 trainer_tests:
 	OCAMLRUNPARAM=b dune exec test/trainer_tests.exe
+
+type_tests:
+	OCAMLRUNPARAM=b dune exec test/typematchup_tests.exe
 
 play:
 	OCAMLRUNPARAM=b dune exec bin/main.exe

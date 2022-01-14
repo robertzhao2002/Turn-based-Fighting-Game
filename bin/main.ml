@@ -17,6 +17,9 @@ let print_invalid_move () = ANSITerminal.print_string [ ANSITerminal.red ] "Inva
 
 let print_quitting () = ANSITerminal.print_string [ ANSITerminal.blue ] "QUITTING....\n"
 
+let print_no_more_revives () =
+  ANSITerminal.print_string [ ANSITerminal.red ] "No more revives!\n"
+
 let print_trainer env =
   ANSITerminal.print_string [ determine_print_color env ]
     (trainer_string (trainer_from_turn env) ^ "\n")
@@ -102,7 +105,7 @@ let rec get_current_env env turn_changed surrendered =
       let new_env =
         try dead_action env creature with
         | InvalidAction ->
-            print_invalid_creature ();
+            print_no_more_revives ();
             env
       in
       get_current_env new_env true false

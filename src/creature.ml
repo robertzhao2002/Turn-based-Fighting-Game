@@ -8,6 +8,7 @@ exception InvalidMove
 
 type t = {
   name : string;
+  ctype : Typematchup.t;
   hp : float;
   attack : float;
   defense : float;
@@ -50,6 +51,7 @@ let init_creature_with_name n =
   let c_json = creature_json_assoc n in
   {
     name = n;
+    ctype = Type1;
     hp = List.assoc "hp" c_json |> to_float;
     attack = List.assoc "attack" c_json |> to_float;
     defense = List.assoc "defense" c_json |> to_float;

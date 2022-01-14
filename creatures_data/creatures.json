@@ -2,6 +2,7 @@
   "creatures": [
     {
       "name": "Jit",
+      "type": "type1",
       "hp": 100.0,
       "attack": 105.0,
       "defense": 110.0,
@@ -12,6 +13,7 @@
     },
     {
       "name": "Spider",
+      "type": "type6",
       "hp": 100.0,
       "attack": 105.0,
       "defense": 110.0,
@@ -23,6 +25,7 @@
     },
     {
       "name": "Deez Nuts",
+      "type": "type2",
       "hp": 69.0,
       "attack": 69.0,
       "defense": 69.0,
@@ -33,6 +36,7 @@
     },
     {
       "name": "Metty Betty",
+      "type": "type3",
       "hp": 100.0,
       "attack": 105.0,
       "defense": 110.0,

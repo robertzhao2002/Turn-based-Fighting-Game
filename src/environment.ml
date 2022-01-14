@@ -3,6 +3,7 @@ open Random
 open Move
 open Creature
 open Command
+open Typematchup
 
 let () = Random.self_init ()
 
@@ -32,6 +33,11 @@ type t = {
 }
 
 let trainer trainer_action = fst trainer_action
+
+let trainer_action_from_turn env =
+  match env.turn with
+  | true -> env.trainer1
+  | false -> env.trainer2
 
 let result_of env =
   let trainer1 = trainer env.trainer1 in
@@ -80,14 +86,10 @@ let determine_move env =
   let trainer2 = trainer env.trainer2 in
   let trainer1_creature_speed = (creature_of trainer1).speed in
   let trainer2_creature_speed = (creature_of trainer2).speed in
-  if trainer1_creature_speed > trainer2_creature_speed then trainer1
-    (* true is trainer1 turn *)
-  else if trainer2_creature_speed > trainer1_creature_speed then trainer2
+  if trainer1_creature_speed > trainer2_creature_speed then true (* true is trainer1 turn *)
+  else if trainer2_creature_speed > trainer1_creature_speed then false
     (* false is trainer2 turn *)
-  else
-    match Random.bool () with
-    | true -> trainer1
-    | false -> trainer2
+  else Random.bool ()
 
 let init t1 t2 =
   { trainer1 = (t1, None); trainer2 = (t2, None); turn = true; match_result = Battle }
@@ -118,7 +120,7 @@ let use_move move trainer1 trainer2 =
   match paralyze_turn with
   | true ->
       let paralyzed_creature_trainer = modify_creature trainer1 trainer1_creature in
-      (paralyzed_creature_trainer, trainer2, paralyze_turn)
+      (paralyzed_creature_trainer, trainer2, false)
   | false -> begin
       let trainer1_creature_not_paralyzed, confusion_turn =
         trainer1_creature |> apply_confusion
@@ -138,7 +140,47 @@ let use_move move trainer1 trainer2 =
           let trainer1_hurt_itself =
             modify_creature trainer1 trainer1_creature_not_paralyzed
           in
-          (trainer1_hurt_itself, trainer2, confusion_turn)
+          (trainer1_hurt_itself, trainer2, false)
+    end
+
+let move_and_move env move1 move2 =
+  let vs_env = { env with turn = determine_move env } in
+  let first_trainer = trainer_from_turn vs_env in
+  let second_trainer = other_trainer vs_env in
+  let new_first_trainer, new_second_trainer, turn_used =
+    use_move move1 first_trainer second_trainer
+  in
+  let new_env = modify_env_trainer vs_env (new_first_trainer, None) in
+  let next_env = next_turn new_env in
+  let determine_dead_env =
+    modify_env_trainer
+      {
+        next_env with
+        match_result =
+          (if creature_of new_second_trainer |> dead then CreatureDead next_env.turn
+          else Battle);
+      }
+      (new_second_trainer, None)
+  in
+  match turn_used with
+  | true -> determine_dead_env
+  | false -> begin
+      match creature_of new_second_trainer |> dead with
+      | true -> determine_dead_env
+      | false ->
+          let next_turn_env = next_turn vs_env in
+          let new_second_trainer, new_first_trainer, _ =
+            use_move move2 new_second_trainer new_first_trainer
+          in
+          let new_env = modify_env_trainer next_turn_env (new_first_trainer, None) in
+          modify_env_trainer
+            {
+              new_env with
+              match_result =
+                (if creature_of new_second_trainer |> dead then CreatureDead next_env.turn
+                else Battle);
+            }
+            (new_second_trainer, None)
     end
 
 let switch_and_move (trainer1, mv) (trainer2, cr) =
@@ -218,7 +260,7 @@ and process_actions env (action1, action2) =
              else CreatureDead true
             else Battle);
         }
-  | MoveUsed m1, MoveUsed m2 -> env
+  | MoveUsed m1, MoveUsed m2 -> move_and_move env m1 m2
   | _ -> raise Not_found
 
 let dead_action env creature =

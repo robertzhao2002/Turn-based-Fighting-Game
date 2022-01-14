@@ -10,6 +10,9 @@
             "name": {
               "type": "string"
             },
+            "type": {
+              "type": "string"
+            },
             "hp": {
               "type": "number"
             },
@@ -27,18 +30,13 @@
               "items": [
                 {
                   "type": "string"
-                },
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "string"
                 }
               ]
             }
           },
           "required": [
             "name",
+            "type",
             "hp",
             "attack",
             "defense",

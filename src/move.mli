@@ -47,7 +47,7 @@ type move_type =
 
 type t = {
   name : string;
-  mtype : move_type;
+  mtype : Typematchup.t;
   power : int;
   accuracy : accuracy;
   uses : int;

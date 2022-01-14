@@ -24,7 +24,7 @@ type accuracy =
 
 type t = {
   name : string;
-  mtype : move_type;
+  mtype : Typematchup.t;
   power : int;
   accuracy : accuracy;
   uses : int;
@@ -109,7 +109,7 @@ let init_move_with_name n =
   let m_json = move_json_assoc n in
   {
     name = n;
-    mtype = List.assoc "type" m_json |> to_string |> type_from_string;
+    mtype = Type1;
     power = List.assoc "power" m_json |> to_int;
     accuracy = List.assoc "accuracy" m_json |> to_int |> accuracy_from_int;
     uses = List.assoc "uses" m_json |> to_int;

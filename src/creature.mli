@@ -4,6 +4,7 @@ exception InvalidMove
 
 type t = {
   name : string;
+  ctype : Typematchup.t;
   hp : float;
   attack : float;
   defense : float;
