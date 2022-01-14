@@ -219,12 +219,17 @@ let inflict_multiple_status creature effects =
 
 let rec find_move_with_name move_name = function
   | [] -> raise InvalidMove
-  | h :: t -> if Move.name h = move_name then h else find_move_with_name move_name t
+  | h :: t ->
+      if String.lowercase_ascii (Move.name h) = String.lowercase_ascii move_name then h
+      else find_move_with_name move_name t
 
 let has_move creature move_name =
   let rec has_move_helper n = function
     | [] -> false
-    | h :: t -> if Move.name h = n && h.uses > 0 then true else has_move_helper n t
+    | h :: t ->
+        if String.lowercase_ascii (Move.name h) = String.lowercase_ascii n && h.uses > 0 then
+          true
+        else has_move_helper n t
   in
   has_move_helper move_name creature.moves
 
@@ -232,7 +237,8 @@ let use_move_with_name creature mname =
   let rec use_move_with_name_tr move_name acc = function
     | [] -> acc
     | h :: t ->
-        if Move.name h = move_name then use_move_with_name_tr move_name (use h :: acc) t
+        if String.lowercase_ascii (Move.name h) = String.lowercase_ascii move_name then
+          use_move_with_name_tr move_name (use h :: acc) t
         else use_move_with_name_tr move_name (h :: acc) t
   in
   { creature with moves = use_move_with_name_tr mname [] creature.moves }
@@ -289,7 +295,7 @@ let creature_moves_string creature =
            acc ^ prefix ^ Move.name h ^ ": " ^ string_of_int h.uses ^ "/"
            ^ string_of_int (total_uses h)
            ^ " uses"
-          else prefix ^ Move.name h ^ ": No uses left")
+          else acc ^ prefix ^ Move.name h ^ ": No uses left")
           t
   in
   creature_moves_string_tr (creature.name ^ "'s Moves") creature.moves

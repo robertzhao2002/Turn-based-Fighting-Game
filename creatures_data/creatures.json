@@ -17,7 +17,7 @@
       "hp": 100.0,
       "attack": 105.0,
       "defense": 110.0,
-      "speed": 95.0,
+      "speed": 105.0,
       "moves": [
         "yell",
         "nutty"

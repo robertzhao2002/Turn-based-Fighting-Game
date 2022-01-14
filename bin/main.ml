@@ -44,6 +44,10 @@ let print_surrender_string winner loser env =
   ANSITerminal.print_string [ determine_print_color env ]
     (loser ^ " has surrendered! " ^ winner ^ " has won the match!\n")
 
+let print_winner_string winner loser env =
+  ANSITerminal.print_string [ determine_print_color env ]
+    (loser ^ " has no more creatures! " ^ winner ^ " has won the match!\n")
+
 let print_died name revivable =
   ANSITerminal.print_string [ ANSITerminal.green ]
     (name ^ " has died. Please send in a new creature"
@@ -111,7 +115,8 @@ let rec get_current_env env turn_changed surrendered =
       get_current_env new_env true false
   | Trainer1Win (winner, loser)
   | Trainer2Win (winner, loser) ->
-      if surrendered then print_surrender_string winner loser env;
+      if surrendered then print_surrender_string winner loser env
+      else print_winner_string winner loser env;
       exit 0
   | Battle -> begin
       if turn_changed then print_trainer env;

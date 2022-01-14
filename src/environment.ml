@@ -39,6 +39,11 @@ let trainer_action_from_turn env =
   | true -> env.trainer1
   | false -> env.trainer2
 
+let other_trainer_action_from_turn env =
+  match env.turn with
+  | true -> env.trainer2
+  | false -> env.trainer1
+
 let result_of env =
   let trainer1 = trainer env.trainer1 in
   let trainer2 = trainer env.trainer2 in
@@ -69,7 +74,7 @@ let damage trainer_creature opponent_creature move =
       let accuracy_rng = Random.float 1. in
       if accuracy_rng < a *. hit_probability then damage_output *. (Random.float 0.2 +. 0.9)
       else (
-        print_endline "Attack missed";
+        print_endline (trainer_creature.name ^ "'s attack missed");
         0.)
   | Guarantee -> damage_output
 
@@ -143,21 +148,35 @@ let use_move move trainer1 trainer2 =
           (trainer1_hurt_itself, trainer2, false)
     end
 
-let move_and_move env move1 move2 =
+let move_from_action = function
+  | Some m -> begin
+      match m with
+      | MoveUsed m1 -> m1
+      | _ -> raise (Failure "Impossible")
+    end
+  | _ -> raise (Failure "Impossible")
+
+let all_dead_winner t1 t2 = function
+  | true -> Trainer2Win (Trainer.name t1, Trainer.name t2)
+  | false -> Trainer1Win (Trainer.name t1, Trainer.name t2)
+
+let move_and_move env =
   let vs_env = { env with turn = determine_move env } in
-  let first_trainer = trainer_from_turn vs_env in
-  let second_trainer = other_trainer vs_env in
+  let first_trainer, first_move = trainer_action_from_turn vs_env in
+  let second_trainer, second_move = other_trainer_action_from_turn vs_env in
   let new_first_trainer, new_second_trainer, turn_used =
-    use_move move1 first_trainer second_trainer
+    use_move (move_from_action first_move) first_trainer second_trainer
   in
-  let new_env = modify_env_trainer vs_env (new_first_trainer, None) in
-  let next_env = next_turn new_env in
+  let new_env = modify_env_trainer vs_env (new_first_trainer, None) |> next_turn in
   let determine_dead_env =
     modify_env_trainer
       {
-        next_env with
+        new_env with
         match_result =
-          (if creature_of new_second_trainer |> dead then CreatureDead next_env.turn
+          (if creature_of new_second_trainer |> dead then
+           if all_dead new_second_trainer then
+             all_dead_winner new_first_trainer new_second_trainer new_env.turn
+           else CreatureDead new_env.turn
           else Battle);
       }
       (new_second_trainer, None)
@@ -168,19 +187,23 @@ let move_and_move env move1 move2 =
       match creature_of new_second_trainer |> dead with
       | true -> determine_dead_env
       | false ->
-          let next_turn_env = next_turn vs_env in
           let new_second_trainer, new_first_trainer, _ =
-            use_move move2 new_second_trainer new_first_trainer
+            use_move (move_from_action second_move) new_second_trainer new_first_trainer
           in
-          let new_env = modify_env_trainer next_turn_env (new_first_trainer, None) in
+          let new_env =
+            modify_env_trainer determine_dead_env (new_second_trainer, None) |> next_turn
+          in
           modify_env_trainer
             {
               new_env with
               match_result =
-                (if creature_of new_second_trainer |> dead then CreatureDead next_env.turn
+                (if creature_of new_first_trainer |> dead then
+                 if all_dead new_first_trainer then
+                   all_dead_winner new_first_trainer new_second_trainer new_env.turn
+                 else CreatureDead new_env.turn
                 else Battle);
             }
-            (new_second_trainer, None)
+            (new_first_trainer, None)
     end
 
 let switch_and_move (trainer1, mv) (trainer2, cr) =
@@ -260,7 +283,7 @@ and process_actions env (action1, action2) =
              else CreatureDead true
             else Battle);
         }
-  | MoveUsed m1, MoveUsed m2 -> move_and_move env m1 m2
+  | MoveUsed _, MoveUsed _ -> move_and_move env |> process_turns
   | _ -> raise Not_found
 
 let dead_action env creature =
