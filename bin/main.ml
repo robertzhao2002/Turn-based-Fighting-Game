@@ -13,12 +13,21 @@ let print_invalid_input () = ANSITerminal.print_string [ ANSITerminal.red ] "Inv
 let print_invalid_creature () =
   ANSITerminal.print_string [ ANSITerminal.red ] "Invalid Creature\n"
 
+let print_invalid_switch () = ANSITerminal.print_string [ ANSITerminal.red ] "Invalid Switch\n"
+
+let print_invalid_revive () = ANSITerminal.print_string [ ANSITerminal.red ] "Invalid Revive\n"
+
 let print_invalid_move () = ANSITerminal.print_string [ ANSITerminal.red ] "Invalid Move\n"
 
 let print_quitting () = ANSITerminal.print_string [ ANSITerminal.blue ] "QUITTING....\n"
 
 let print_no_more_revives () =
   ANSITerminal.print_string [ ANSITerminal.red ] "No more revives!\n"
+
+let print_turn_prompter env =
+  let trainer = trainer_from_turn env in
+  ANSITerminal.print_string [ ANSITerminal.green ]
+    ("What will " ^ Game.Trainer.name trainer ^ " do? ")
 
 let print_trainer env =
   ANSITerminal.print_string [ determine_print_color env ]
@@ -84,6 +93,7 @@ let input_helper () =
 
 let rec send_in_helper env =
   let trainer = trainer_from_turn env in
+  print_died (Game.Creature.name (creature_of trainer)) (has_revive trainer);
   let other = other_trainer env in
   let input = parse_phrase (read_line ()) in
   match input with
@@ -102,9 +112,7 @@ let rec send_in_helper env =
 let rec get_current_env env turn_changed surrendered =
   match env.match_result with
   | CreatureDead _ ->
-      let trainer = trainer_from_turn env in
       print_trainer env;
-      print_died (Game.Creature.name (creature_of trainer)) (has_revive trainer);
       let creature = send_in_helper env in
       let new_env =
         try dead_action env creature with
@@ -120,6 +128,7 @@ let rec get_current_env env turn_changed surrendered =
       exit 0
   | Battle -> begin
       if turn_changed then print_trainer env;
+      print_turn_prompter env;
       match input_helper () with
       | Summary creature_name ->
           (if creature_name = "\n" then print_invalid_input ()
@@ -142,7 +151,7 @@ let rec get_current_env env turn_changed surrendered =
           let new_env =
             try next env (Revive revive_creature) with
             | InvalidAction ->
-                print_invalid_creature ();
+                print_invalid_revive ();
                 env
           in
           get_current_env new_env true false
@@ -150,7 +159,7 @@ let rec get_current_env env turn_changed surrendered =
           let new_env =
             try next env (Switch new_creature) with
             | InvalidAction ->
-                print_invalid_creature ();
+                print_invalid_switch ();
                 env
           in
           get_current_env new_env true false

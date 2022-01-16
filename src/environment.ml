@@ -160,6 +160,13 @@ let all_dead_winner t1 t2 = function
   | true -> Trainer2Win (Trainer.name t1, Trainer.name t2)
   | false -> Trainer1Win (Trainer.name t1, Trainer.name t2)
 
+let poison_helper t1 t2 =
+  let t1_creature = creature_of t1 in
+  let t2_creature = creature_of t2 in
+  let t1_app_psn = apply_poison t1_creature in
+  let t2_app_psn = apply_poison t2_creature in
+  (modify_creature t1 t1_app_psn, modify_creature t2 t2_app_psn)
+
 let move_and_move env =
   let vs_env = { env with turn = determine_move env } in
   let first_trainer, first_move = trainer_action_from_turn vs_env in
@@ -206,9 +213,32 @@ let move_and_move env =
             (new_first_trainer, None)
     end
 
-let switch_and_move (trainer1, mv) (trainer2, cr) =
-  let trainer2_switch = switch trainer2 cr in
-  use_move mv trainer1 trainer2_switch
+let rs_move (trainer1, mv) (trainer2, cr) rs =
+  let trainer2_revive = rs trainer2 cr in
+  use_move mv trainer1 trainer2_revive
+
+let check_env_state move_user env trainer1 trainer2 =
+  {
+    env with
+    trainer1 = (trainer1, None);
+    trainer2 = (trainer2, None);
+    match_result =
+      begin
+        match move_user with
+        | true ->
+            if dead (creature_of trainer2) then
+              if all_dead trainer2 then
+                Trainer1Win (Trainer.name trainer1, Trainer.name trainer2)
+              else CreatureDead false
+            else Battle
+        | false ->
+            if dead (creature_of trainer1) then
+              if all_dead trainer1 then
+                Trainer2Win (Trainer.name trainer2, Trainer.name trainer1)
+              else CreatureDead true
+            else Battle
+      end;
+  }
 
 let rec process_turns env =
   match env.match_result with
@@ -249,42 +279,38 @@ and process_actions env (action1, action2) =
         { env with trainer1 = (trainer1_revive, None); trainer2 = (trainer2_switch, None) }
   | MoveUsed m1, Switch c2 ->
       let trainer1_creature_use_move, trainer2_damage_inflicted, _ =
-        switch_and_move (trainer1, m1) (trainer2, c2)
+        rs_move (trainer1, m1) (trainer2, c2) switch
       in
-      process_turns
-        {
-          env with
-          trainer1 = (trainer1_creature_use_move, None);
-          trainer2 = (trainer2_damage_inflicted, None);
-          match_result =
-            (if dead (creature_of trainer2_damage_inflicted) then
-             if all_dead trainer2_damage_inflicted then
-               Trainer1Win
-                 ( Trainer.name trainer1_creature_use_move,
-                   Trainer.name trainer2_damage_inflicted )
-             else CreatureDead false
-            else Battle);
-        }
+      let t1_poison, t2_poison =
+        poison_helper trainer1_creature_use_move trainer2_damage_inflicted
+      in
+      check_env_state true env t1_poison t2_poison |> process_turns
   | Switch c1, MoveUsed m2 ->
       let trainer2_creature_use_move, trainer1_damage_inflicted, _ =
-        switch_and_move (trainer2, m2) (trainer1, c1)
+        rs_move (trainer2, m2) (trainer1, c1) switch
       in
-      process_turns
-        {
-          env with
-          trainer1 = (trainer1_damage_inflicted, None);
-          trainer2 = (trainer2_creature_use_move, None);
-          match_result =
-            (if dead (creature_of trainer1_damage_inflicted) then
-             if all_dead trainer1_damage_inflicted then
-               Trainer2Win
-                 ( Trainer.name trainer2_creature_use_move,
-                   Trainer.name trainer1_damage_inflicted )
-             else CreatureDead true
-            else Battle);
-        }
+      let t1_poison, t2_poison =
+        poison_helper trainer1_damage_inflicted trainer2_creature_use_move
+      in
+      check_env_state false env t1_poison t2_poison |> process_turns
   | MoveUsed _, MoveUsed _ -> move_and_move env |> process_turns
-  | _ -> raise Not_found
+  | MoveUsed m, Revive c ->
+      let trainer1_creature_use_move, trainer2_damage_inflicted, _ =
+        rs_move (trainer1, m) (trainer2, c) revive
+      in
+      let t1_poison, t2_poison =
+        poison_helper trainer1_creature_use_move trainer2_damage_inflicted
+      in
+      check_env_state true env t1_poison t2_poison |> process_turns
+  | Revive c, MoveUsed m ->
+      let trainer2_creature_use_move, trainer1_damage_inflicted, _ =
+        rs_move (trainer2, m) (trainer1, c) revive
+      in
+      let t1_poison, t2_poison =
+        poison_helper trainer1_damage_inflicted trainer2_creature_use_move
+      in
+      check_env_state false env t1_poison t2_poison |> process_turns
+  | _ -> raise (Failure "Impossible")
 
 let dead_action env creature =
   let env_turn_trainer = trainer_from_turn env in
@@ -305,7 +331,10 @@ let next env act =
   let action_env =
     match act with
     | Switch c ->
-        if creature_not_in_battle env_turn_trainer c then modify_env_action env act
+        if
+          creature_not_in_battle env_turn_trainer c
+          && creature_with_name env_turn_trainer c |> dead |> not
+        then modify_env_action env act
         else raise InvalidAction
     | Revive c ->
         if has_creature env_turn_trainer c && has_revive env_turn_trainer then
