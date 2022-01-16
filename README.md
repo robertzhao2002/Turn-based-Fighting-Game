@@ -8,7 +8,7 @@ This program reads data from a JSON document containing creature and move data a
 
 ### Player Actions ###
 
-Players will take turns choosing an action. There are 4 possible actions that can be taken.
+Players will take turns choosing an action. There are 4 possible actions that can be taken: switching, reviving, using a move, or surrendering. Once both players have performed an action, the game engine will determine a result based on various factors, which include status effects and the creatures' speeds.
 
 ### 2-Player Mode ###
 
@@ -42,3 +42,14 @@ Whenever a creature dies during a turn, that player must choose to revive that c
 ```[creature-name] has died. Please send in a new creature:```
 
 A player can type in the name of the recently dead creature to revive it (if they still have their revive), or type the name of another creature to switch into it. A new turn will proceed after this.
+
+## Creating Your Own Creatures and Moves ##
+
+To create your own creatures and moves, follow the sample **JSON** files in the `moves_data` and `creatures_data` folders.
+
+- [Move JSON] (/moves_data)
+- [Creature JSON] (/creatures_data)
+
+## Installation and Playing the Game ##
+
+To install this game, you need to have OCaml installed on a Linux Computer. To run the game, run the command `make play` to play the game.
