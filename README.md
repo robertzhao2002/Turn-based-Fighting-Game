@@ -47,8 +47,8 @@ A player can type in the name of the recently dead creature to revive it (if the
 
 To create your own creatures and moves, follow the sample **JSON** files in the `moves_data` and `creatures_data` folders.
 
-- [Move JSON] (/moves_data)
-- [Creature JSON] (/creatures_data)
+- [Move JSON](/moves_data)
+- [Creature JSON](/creatures_data)
 
 ## Installation and Playing the Game ##
 
