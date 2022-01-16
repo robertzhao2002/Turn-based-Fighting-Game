@@ -18,6 +18,10 @@ This game involves 2 players taking turns performing actions (more on these belo
 
 This game mode involves the player playing against the computer. You simply pick your action, and the computer will automatically act based on what you pick. The goal is to defeat the computer by killing all 3 of the computer's creatures. The computer will pick creatures based on optimal type matchups and speed.
 
+### Wiki [WIP] ###
+
+To find out more information on the details of this game, please check out the [wiki](https://github.com/robertzhao2002/Turn-based-Fighting-Game/wiki). There, you can find further information on strategies, calculation formulas, stats, and much more.
+
 ## Commands ##
 
 ### Informational ###
