@@ -2,7 +2,7 @@
 
 ## About ##
 
-This program reads data from a JSON document containing creature and move data and uses that data to create a turn-based 2-player game. Each player takes turns performing an action (using a move, reviving another creature, or switching to another creature) until either a player surrenders or all of the creatures dies. When both players choose to use a move, the creature with the faster speed stat will go first.
+This program reads data from a JSON document containing creature and move data and uses that data to create a turn-based fighting game, which can be played by either 2 people or 1 person vs. the computer (AI). Each player/computer takes turns performing an action (using a move, reviving another creature, or switching to another creature) until either a player surrenders or all of the creatures dies. When both players choose to use a move, the creature with the faster speed stat will go first.
 
 ## Game Mechanics ##
 
@@ -26,16 +26,16 @@ To find out more information on the details of this game, please check out the [
 
 ### Informational ###
 
-- `summary [creature]`: gives a breakdown of the creature's stats (attack, defense, speed) and moveset
-- `info [current-creature-move]`: gives information of the move of the current creature
-- `info [other-creature];[other-creature-mmove]`: gives information of the move of the creature indicated
+- `summary [creature]` gives a breakdown of the creature's stats (attack, defense, speed) and moveset
+- `info [current-creature-move]` gives information of the move of the current creature
+- `info [other-creature];[other-creature-mmove]` gives information of the move of the creature indicated
 
 ### User Action ###
 
-- `switch [creature-name]`: changes the current creature in battle to the creature indicated
-- `revive [creature-name]`: revives the given creature
-- `use [move-name]`: makes the creature in battle use the given move, which decrements its remaining uses by 1
-- `surrender`: forfeits the match and declares the other player as the winner
+- `switch [creature-name]` changes the current creature in battle to the creature indicated
+- `revive [creature-name]` revives the given creature
+- `use [move-name]` makes the creature in battle use the given move, which decrements its remaining uses by 1
+- `surrender` forfeits the match and declares the other player as the winner
 
 **NOTE**: switching and reviving will always be done first after both players choose their action. After this is done, moves are used. When both players choose to use moves, the player with the faster creature in battle will move first.
 
