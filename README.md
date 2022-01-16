@@ -12,10 +12,33 @@ Players will take turns choosing an action. There are 4 possible actions that ca
 
 ### 2-Player Mode ###
 
-This game involves 2 players
+This game involves 2 players taking turns performing actions (more on these below). The game ends when a player surrenders, or when all of a player's 3 creatures die. Players have 1 revive to use per match, but they cannot revive when all 3 creatures have died.
 
-### Vs. Computer [WIP] aka Single-Player ###
+### Vs. Computer aka Single-Player [WIP] ###
 
-This game mode involves the player playing against the computer. You simply pick your action
+This game mode involves the player playing against the computer. You simply pick your action, and the computer will automatically act based on what you pick. The goal is to defeat the computer by killing all 3 of the computer's creatures. The computer will pick creatures based on optimal type matchups and speed.
 
 ## Commands ##
+
+### Informational ###
+
+- `summary [creature]`: gives a breakdown of the creature's stats (attack, defense, speed) and moveset
+- `info [current-creature-move]`: gives information of the move of the current creature
+- `info [other-creature];[other-creature-mmove]`: gives information of the move of the creature indicated
+
+### User Action ###
+
+- `switch [creature-name]`: changes the current creature in battle to the creature indicated
+- `revive [creature-name]`: revives the given creature
+- `use [move-name]`: makes the creature in battle use the given move, which decrements its remaining uses by 1
+- `surrender`: forfeits the match and declares the other player as the winner
+
+**NOTE**: switching and reviving will always be done first after both players choose their action. After this is done, moves are used. When both players choose to use moves, the player with the faster creature in battle will move first.
+
+### Death Action ###
+
+Whenever a creature dies during a turn, that player must choose to revive that creature or switch into a creature that is not dead.
+
+```[creature-name] has died. Please send in a new creature:```
+
+A player can type in the name of the recently dead creature to revive it (if they still have their revive), or type the name of another creature to switch into it. A new turn will proceed after this.
