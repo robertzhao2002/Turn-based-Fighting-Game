@@ -54,6 +54,10 @@ To create your own creatures and moves, follow the sample **JSON** files in the 
 - [Move JSON](/moves_data)
 - [Creature JSON](/creatures_data)
 
+## Documentation ##
+
+To find out more about the programming implementation of the game and how the rules are interpreted as code, run `make doc`. Then open the `index.html` page under the build folder to see a well-formatted documentation of the program.
+
 ## Installation and Playing the Game ##
 
 To install this game, you need to have OCaml installed on a Linux Computer. To run the game, run the command `make play` to play the game.
