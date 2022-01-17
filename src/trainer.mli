@@ -79,18 +79,18 @@ val trainer_string : t -> string
     - {[
         Trainer1
         REVIVE
-        Creature1: 100.0% HP; CONFUSE; (IN BATTLE)
-        Creature2: DEAD;
-        Creature3: 100.0% HP; PSN;
+        Creature1 (type1/type2): 100.0% HP; CONFUSE; (IN BATTLE)
+        Creature2 (type1): DEAD;
+        Creature3 (type1/type2/type3): 100.0% HP; PSN;
         Creature1's Moves
-        - MoveA: 2/2 uses
-        - MoveB: No uses left
+        - MoveA (type1): 2/2 uses
+        - MoveB (type2): No uses left
       ]}
     - {[
         Trainer1
-        Creature1: 100.0% HP; CONFUSE; (IN BATTLE)
-        Creature3: 100.0% HP; PSN;
+        Creature1 (type1/type2): 100.0% HP; CONFUSE; (IN BATTLE)
+        Creature3 (type1/type2/type3): 100.0% HP; PSN;
         Creature1's Moves
-        - MoveA: 2/2 uses
-        - MoveB: No uses left
+        - MoveA (type1): 2/2 uses
+        - MoveB (type2): No uses left
       ]}*)

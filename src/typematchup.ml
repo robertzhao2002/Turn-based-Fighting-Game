@@ -25,7 +25,7 @@ let type_matchup_factor = function
   | Type3, Type2 -> 1.0
   | Type2, Type4 -> 1.0
   | Type4, Type2 -> 1.0
-  | Type2, Type5 -> 1.0
+  | Type2, Type5 -> 0.
   | Type5, Type2 -> 1.0
   | Type2, Type6 -> 2.0
   | Type6, Type2 -> 1.0
@@ -55,6 +55,19 @@ let multiple_type_matchup opp_type = function
       type_matchup_factor (opp_type, type1) *. type_matchup_factor (opp_type, t2)
   | type1, None, None -> type_matchup_factor (opp_type, type1)
   | _ -> raise (Failure "Impossible")
+
+let same_type_bonus move_type = function
+  | type1, Some t2, Some t3 ->
+      if move_type = type1 || move_type = t2 || move_type = t3 then 1.25 else 1.0
+  | type1, Some t2, None -> if move_type = type1 || move_type = t2 then 1.25 else 1.0
+  | type1, None, None -> if move_type = type1 then 1.25 else 1.0
+  | _ -> raise (Failure "Impossible")
+
+let effectiveness_as_string value =
+  if value >= 2.0 then "super effective"
+  else if value = 0. then "no effect"
+  else if value <= 0.5 then "not very effective"
+  else ""
 
 let type_from_string s =
   match String.lowercase_ascii s with

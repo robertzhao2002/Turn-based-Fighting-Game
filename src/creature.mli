@@ -143,7 +143,7 @@ val creature_string : t -> string
     - {[
         creature_A (type1/type2/type3): 69.4% HP; PSN; PAR; CONFUSE; ++ATK; -DEF; +++SPD; -ACCURACY; +EVASIVENESS; REVIVED
       ]}
-    - {[ creature_B: DEAD ]} *)
+    - {[ creature_B (type1/type2): DEAD ]} *)
 
 val creature_stats_string : t -> string
 (** [creature_stats_string c] shows all of the base stats of [c] along with the new value of

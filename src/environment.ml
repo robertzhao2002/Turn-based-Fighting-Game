@@ -65,9 +65,14 @@ let next_turn env = { env with turn = not env.turn }
 
 let damage trainer_creature opponent_creature move =
   let hit_probability = trainer_creature.accuracy /. opponent_creature.evasiveness in
+  let move_type = move_type_of move in
+  let trainer_creature_type = ctype trainer_creature in
+  let opponent_creature_type = ctype opponent_creature in
+  let same_bonus = same_type_bonus move_type trainer_creature_type in
+  let effectiveness = multiple_type_matchup move_type opponent_creature_type in
   let damage_output =
     ((trainer_creature.attack /. opponent_creature.defense) +. 50.)
-    *. float_of_int move.power /. 50.
+    *. float_of_int move.power /. 50. *. same_bonus *. effectiveness
   in
   match move.accuracy with
   | Accuracy a ->

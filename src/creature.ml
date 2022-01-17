@@ -290,7 +290,8 @@ let stat_change_string stat base str =
   else ""
 
 let creature_string creature =
-  if dead creature then Printf.sprintf "%s: DEAD" creature.name
+  if dead creature then
+    Printf.sprintf "%s (%s): DEAD" creature.name (creature.ctype |> creature_type_as_string)
   else
     Printf.sprintf "%s (%s): %.1f%% HP;%s%s%s%s%s%s%s%s%s" creature.name
       (creature.ctype |> creature_type_as_string)
