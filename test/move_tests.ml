@@ -1,6 +1,7 @@
 open OUnit2
 open Game
 open Move
+open Typematchup
 open Helper
 open Values
 
@@ -8,7 +9,8 @@ let move_name_test name input expected_output =
   name >:: fun _ -> Move.name input |> assert_equal expected_output ~printer:(fun s -> s)
 
 let move_type_test name input expected_output =
-  name >:: fun _ -> Move.move_type_of input |> assert_equal expected_output
+  name >:: fun _ ->
+  Move.move_type_of input |> assert_equal expected_output ~printer:type_as_string
 
 let move_power_test name input expected_output =
   name >:: fun _ ->
@@ -40,7 +42,7 @@ let move_string_test name input expected_output =
 let yell_tests =
   [
     move_name_test "Name of Move is Yell" yell "yell";
-    move_type_test "Type of Yell is Water" yell Water;
+    move_type_test "Type of Yell is type1" yell Type1;
     move_power_test "Yell has base power of 100" yell 100;
     move_accuracy_test "Yell has base accuracy of 70%" yell 0.7;
     move_uses_test "Yell has 2 uses" yell 2;
@@ -59,7 +61,7 @@ let yell_tests =
 let nutty_tests =
   [
     move_name_test "Name of Move is nutty" nutty "nutty";
-    move_type_test "Type of nutty is Water" nutty Magic;
+    move_type_test "Type of nutty is type2" nutty Type2;
     move_power_test "Nutty has base power of 50" nutty 50;
     move_accuracy_test "Nutty has base accuracy of 100% (Guarantee)" nutty 1.;
     move_uses_test "Nutty has 5 uses" nutty 5;

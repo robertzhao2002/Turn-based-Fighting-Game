@@ -10,8 +10,19 @@
             "name": {
               "type": "string"
             },
-            "type": {
-              "type": "string"
+            "type(s)": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "string"
+                }
+              ]
             },
             "hp": {
               "type": "number"
@@ -36,7 +47,7 @@
           },
           "required": [
             "name",
-            "type",
+            "type(s)",
             "hp",
             "attack",
             "defense",

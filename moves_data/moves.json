@@ -2,7 +2,7 @@
   "moves": [
     {
       "name": "yell",
-      "type": "water",
+      "type": "type1",
       "power": 100,
       "accuracy": 70,
       "uses": 2,
@@ -33,7 +33,7 @@
     },
     {
       "name": "nutty",
-      "type": "magic",
+      "type": "type2",
       "power": 50,
       "accuracy": 1000,
       "uses": 5,
@@ -60,7 +60,7 @@
     },
     {
       "name": "chug jug",
-      "type": "water",
+      "type": "type3",
       "power": 100,
       "accuracy": 70,
       "uses": 2,

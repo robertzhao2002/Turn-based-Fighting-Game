@@ -39,12 +39,6 @@ type accuracy =
   | Accuracy of float
   | Guarantee
 
-(** The type representing the move's type (e.g. Water, Fire, Magic). *)
-type move_type =
-  | Water
-  | Fire
-  | Magic
-
 type t = {
   name : string;
   mtype : Typematchup.t;
@@ -63,8 +57,8 @@ val init_move_with_name : string -> t
 val name : t -> string
 (** [name m] is the name of move [m]. *)
 
-val move_type_of : t -> move_type
-(** [move_type_of m] is the type of move [m] (e.g. [Water], [Fire], [Magic], etc.). *)
+val move_type_of : t -> Typematchup.t
+(** [move_type_of m] is the type of move [m] (e.g. [Type1], [Type2], [Type3], etc.). *)
 
 val base_power : t -> int
 (** [base_power m] is the base power of move [m]. This determines how much damage [m] can
@@ -95,14 +89,15 @@ val use : t -> t
     This function raises [NoMoreUses] if there are no uses left. *)
 
 val move_string : t -> string
-(** [move_string m] is all of the details of [m]. This includes its base power, current uses as
-    a fraction, base accuracy, potential status effects and associated probabilities, potential
-    stat changes and associated probabilities, and type.
+(** [move_string m] is all of the details of [m]. This includes its base power, type, current
+    uses as a fraction, base accuracy, potential status effects and associated probabilities,
+    potential stat changes and associated probabilities, and type.
 
     Examples
 
     - {[
         attack 1
+        Type: type1
         Uses: 5/10
         Base Power: 100; Accuracy: 70.0%;
         Status Effects: 20.0% chance to poison; 20.0% chance to confuse;
@@ -110,6 +105,7 @@ val move_string : t -> string
       ]}
     - {[
         attack 2
+        Type: type2
         Uses: 2/4
         Base Power: 100; Accuracy: 70.0%;
       ]} *)

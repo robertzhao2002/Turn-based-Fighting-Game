@@ -1,4 +1,5 @@
 open Yojson.Basic.Util
+open Typematchup
 
 type effect =
   | Poison of float
@@ -12,11 +13,6 @@ type stat_change =
   | Speed of float * float * bool
   | AccuracyS of float * float * bool
   | Evasiveness of float * float * bool
-
-type move_type =
-  | Water
-  | Fire
-  | Magic
 
 type accuracy =
   | Accuracy of float
@@ -33,12 +29,6 @@ type t = {
 }
 
 exception NoMoreUses
-
-let type_from_string = function
-  | "water" -> Water
-  | "fire" -> Fire
-  | "magic" -> Magic
-  | _ -> raise Not_found
 
 let target_of_string = function
   | "yourself" -> true
@@ -109,7 +99,7 @@ let init_move_with_name n =
   let m_json = move_json_assoc n in
   {
     name = n;
-    mtype = Type1;
+    mtype = List.assoc "type" m_json |> to_string |> type_from_string;
     power = List.assoc "power" m_json |> to_int;
     accuracy = List.assoc "accuracy" m_json |> to_int |> accuracy_from_int;
     uses = List.assoc "uses" m_json |> to_int;
@@ -206,8 +196,8 @@ let effects_as_string = function
       e_to_s_tr "\nStatus Effects:" effects
 
 let move_string move =
-  Printf.sprintf "%s\nUses: %d/%d\nBase Power: %d; Accuracy: %s;%s%s" move.name move.uses
-    (total_uses move) move.power
+  Printf.sprintf "%s\nType: %s\nUses: %d/%d\nBase Power: %d; Accuracy: %s;%s%s" move.name
+    (move.mtype |> type_as_string) move.uses (total_uses move) move.power
     (accuracy_to_string move.accuracy)
     (effects_as_string move.meffect)
     (stat_changes_as_string move.mstat_change)

@@ -4,7 +4,7 @@ exception InvalidMove
 
 type t = {
   name : string;
-  ctype : Typematchup.t * Typematchup.t option * Typematchup.t option;
+  ctype : Typematchup.creature_type;
   hp : float;
   attack : float;
   defense : float;
@@ -17,7 +17,6 @@ type t = {
   evasiveness : float;
   revived : bool;
 }
-
 (** The type representing the current state of a creature. The functions below all represent
     its base stats, but calling a property of this record will give the current value (which
     could change due to stat changing moves). *)
@@ -29,6 +28,10 @@ val init_creature_with_name : string -> t
 
 val name : t -> string
 (** [name c] is the name of creature [c]. *)
+
+val ctype : t -> Typematchup.creature_type
+(** [ctype c] is a tuple that represents the type of the creature. They must have at least 1
+    type and can have up to 3 types. The order of the types don't matter *)
 
 val base_hp : t -> float
 (** [base_hp c] is the base hp of creature [c]. This is the amount of hitpoints [c] has. *)
@@ -115,9 +118,9 @@ val use_move_with_name : t -> string -> t
     the move has no uses left. *)
 
 val creature_string : t -> string
-(** [creature_string c] is [c] name, hp as a percentage, status effects, stat changes, and
-    whether or not [c] was revived displayed as a string. If [c] is dead, then [DEAD] will be
-    next to its name.
+(** [creature_string c] is [c] name, type(s), hp as a percentage, status effects, stat changes,
+    and whether or not [c] was revived displayed as a string. If [c] is dead, then [DEAD] will
+    be next to its name.
 
     Codes
 
@@ -138,7 +141,7 @@ val creature_string : t -> string
     Examples
 
     - {[
-        creature_A: 69.4% HP; PSN; PAR; CONFUSE; ++ATK; -DEF; +++SPD; -ACCURACY; +EVASIVENESS; REVIVED
+        creature_A (type1/type2/type3): 69.4% HP; PSN; PAR; CONFUSE; ++ATK; -DEF; +++SPD; -ACCURACY; +EVASIVENESS; REVIVED
       ]}
     - {[ creature_B: DEAD ]} *)
 
@@ -151,6 +154,7 @@ val creature_stats_string : t -> string
 
     - {[
         CreatureA's Stats
+        - TYPE: type1/type2/type3
         - HP: 40.3/200.2
         - ATK: 100.5
         - DEF: 75.6 -> 100.3
@@ -165,12 +169,12 @@ val creature_moves_string : t -> string
 
     - {[
         CreatureA's Moves
-        - MoveA: 6/6 uses
-        - MoveB: No uses left
-        - MoveC: 3/5 uses
+        - MoveA (type1): 6/6 uses
+        - MoveB (type2): No uses left
+        - MoveC (type3): 3/5 uses
       ]}
     - {[
         CreatureB's Moves
-        - MoveA: 2/6 uses
-        - MoveB: No uses left
+        - MoveA (type1): 2/6 uses
+        - MoveB (type1): No uses left
       ]}*)

@@ -1,6 +1,7 @@
 open Yojson.Basic.Util
 open Move
 open Random
+open Typematchup
 
 let () = Random.self_init ()
 
@@ -8,7 +9,7 @@ exception InvalidMove
 
 type t = {
   name : string;
-  ctype : Typematchup.t * Typematchup.t option * Typematchup.t option;
+  ctype : creature_type;
   hp : float;
   attack : float;
   defense : float;
@@ -28,6 +29,20 @@ let rec initialize_creature_moves acc = function
       let move_name_str = to_string h in
       let accumulate_move = init_move_with_name move_name_str :: acc in
       initialize_creature_moves accumulate_move t
+
+let rec get_type_strings acc = function
+  | [] -> acc
+  | h :: t ->
+      let type_str = to_string h in
+      let accumulate_type = type_str :: acc in
+      get_type_strings accumulate_type t
+
+let type_strings_to_creature_type = function
+  | [ h ] -> (type_from_string h, None, None)
+  | [ h1; h2 ] -> (type_from_string h1, Some (type_from_string h2), None)
+  | [ h1; h2; h3 ] ->
+      (type_from_string h1, Some (type_from_string h2), Some (type_from_string h3))
+  | _ -> raise (Failure "Impossible")
 
 let creature_json f =
   let json =
@@ -51,7 +66,9 @@ let init_creature_with_name n =
   let c_json = creature_json_assoc n in
   {
     name = n;
-    ctype = (Type1, None, None);
+    ctype =
+      List.assoc "type(s)" c_json |> to_list |> get_type_strings []
+      |> type_strings_to_creature_type;
     hp = List.assoc "hp" c_json |> to_float;
     attack = List.assoc "attack" c_json |> to_float;
     defense = List.assoc "defense" c_json |> to_float;
@@ -66,6 +83,8 @@ let init_creature_with_name n =
   }
 
 let name c = c.name
+
+let ctype c = c.ctype
 
 let base_hp c =
   let c_json = creature_json_assoc c.name in
@@ -273,7 +292,8 @@ let stat_change_string stat base str =
 let creature_string creature =
   if dead creature then Printf.sprintf "%s: DEAD" creature.name
   else
-    Printf.sprintf "%s: %.1f%% HP;%s%s%s%s%s%s%s%s%s" creature.name
+    Printf.sprintf "%s (%s): %.1f%% HP;%s%s%s%s%s%s%s%s%s" creature.name
+      (creature.ctype |> creature_type_as_string)
       (creature.hp /. base_hp creature *. 100.)
       (psn_par_string creature.poison " PSN;")
       (psn_par_string creature.paralyze " PAR;")
@@ -290,12 +310,13 @@ let creature_moves_string creature =
     | [] -> acc
     | h :: t ->
         let prefix = "\n- " in
+        let type_string = " (" ^ (Move.move_type_of h |> type_as_string) ^ ")" in
         creature_moves_string_tr
           (if h.uses > 0 then
-           acc ^ prefix ^ Move.name h ^ ": " ^ string_of_int h.uses ^ "/"
+           acc ^ prefix ^ Move.name h ^ type_string ^ ": " ^ string_of_int h.uses ^ "/"
            ^ string_of_int (total_uses h)
            ^ " uses"
-          else acc ^ prefix ^ Move.name h ^ ": No uses left")
+          else acc ^ prefix ^ Move.name h ^ type_string ^ ": No uses left")
           t
   in
   creature_moves_string_tr (creature.name ^ "'s Moves") creature.moves
@@ -306,7 +327,9 @@ let show_change base current =
   else Printf.sprintf "%.1f -> %.1f" base current
 
 let creature_stats_string creature =
-  Printf.sprintf "%s's Stats\nHP: %.1f/%.1f\nATK: %s\nDEF: %s\nSPD: %s" creature.name
+  Printf.sprintf "%s's Stats\n- TYPE: %s\n- HP: %.1f/%.1f\n- ATK: %s\n- DEF: %s\n- SPD: %s"
+    creature.name
+    (creature.ctype |> creature_type_as_string)
     creature.hp (base_hp creature)
     (show_change (base_attack creature) creature.attack)
     (show_change (base_defense creature) creature.defense)
