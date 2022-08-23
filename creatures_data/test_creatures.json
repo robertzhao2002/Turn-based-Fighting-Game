@@ -1,0 +1,59 @@
+{
+  "creatures": [
+    {
+      "name": "creature1",
+      "type(s)": [
+        "type1",
+        "type2",
+        "type5"
+      ],
+      "hp": 100.0,
+      "attack": 105.0,
+      "defense": 110.0,
+      "speed": 95.0,
+      "moves": [
+        "yell"
+      ]
+    },
+    {
+      "name": "creature2",
+      "type(s)": [
+        "type6"
+      ],
+      "hp": 100.0,
+      "attack": 105.0,
+      "defense": 110.0,
+      "speed": 105.0,
+      "moves": [
+        "yell",
+        "nutty"
+      ]
+    },
+    {
+      "name": "creature3",
+      "type(s)": [
+        "type2"
+      ],
+      "hp": 69.0,
+      "attack": 69.0,
+      "defense": 69.0,
+      "speed": 69.0,
+      "moves": [
+        "yell"
+      ]
+    },
+    {
+      "name": "creature4",
+      "type(s)": [
+        "type3"
+      ],
+      "hp": 100.0,
+      "attack": 105.0,
+      "defense": 110.0,
+      "speed": 95.0,
+      "moves": [
+        "yell"
+      ]
+    }
+  ]
+}

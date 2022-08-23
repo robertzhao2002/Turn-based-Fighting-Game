@@ -7,27 +7,23 @@ open Helper
 open Values
 
 let creature_name_test name input expected_output =
-  name >:: fun _ -> Creature.name input |> assert_equal expected_output ~printer:id
+  name >:: fun _ -> input.name |> assert_equal expected_output ~printer:id
 
 let creature_type_test name input expected_output =
   name >:: fun _ ->
-  Creature.ctype input |> assert_equal expected_output ~printer:creature_type_as_string
+  input.creature_type |> assert_equal expected_output ~printer:creature_type_as_string
 
 let creature_base_hp_test name input expected_output =
-  name >:: fun _ ->
-  Creature.base_hp input |> assert_equal expected_output ~printer:string_of_float
+  name >:: fun _ -> input.base_hp |> assert_equal expected_output ~printer:string_of_float
 
 let creature_base_attack_test name input expected_output =
-  name >:: fun _ ->
-  Creature.base_attack input |> assert_equal expected_output ~printer:string_of_float
+  name >:: fun _ -> input.base_attack |> assert_equal expected_output ~printer:string_of_float
 
 let creature_base_defense_test name input expected_output =
-  name >:: fun _ ->
-  Creature.base_defense input |> assert_equal expected_output ~printer:string_of_float
+  name >:: fun _ -> input.base_defense |> assert_equal expected_output ~printer:string_of_float
 
 let creature_base_speed_test name input expected_output =
-  name >:: fun _ ->
-  Creature.base_speed input |> assert_equal expected_output ~printer:string_of_float
+  name >:: fun _ -> input.base_speed |> assert_equal expected_output ~printer:string_of_float
 
 let creature_dead_test name input expected_output =
   name >:: fun _ -> Creature.dead input |> assert_equal expected_output

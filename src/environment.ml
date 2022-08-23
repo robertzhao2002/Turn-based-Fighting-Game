@@ -64,28 +64,17 @@ let other_trainer env =
 let next_turn env = { env with turn = not env.turn }
 
 let damage trainer_creature opponent_creature move =
-  let hit_probability = trainer_creature.accuracy /. opponent_creature.evasiveness in
-  let move_type = move_type_of move in
-  let trainer_creature_type = ctype trainer_creature in
-  let opponent_creature_type = ctype opponent_creature in
+  let move_type = move.move_type in
+  let trainer_creature_type = trainer_creature.creature_type in
+  let opponent_creature_type = opponent_creature.creature_type in
   let same_bonus = same_type_bonus move_type trainer_creature_type in
   let effectiveness = multiple_type_matchup move_type opponent_creature_type in
-  let damage_output =
-    ((trainer_creature.attack /. opponent_creature.defense) +. 50.)
-    *. float_of_int move.power /. 50. *. same_bonus *. effectiveness
-  in
-  match move.accuracy with
-  | Accuracy a ->
-      let accuracy_rng = Random.float 1. in
-      if accuracy_rng < a *. hit_probability then damage_output *. (Random.float 0.2 +. 0.9)
-      else (
-        print_endline (trainer_creature.name ^ "'s attack missed");
-        0.)
-  | Guarantee -> damage_output
+  ((trainer_creature.current_attack /. opponent_creature.current_defense) +. 50.)
+  *. float_of_int move.base_power /. 50. *. same_bonus *. effectiveness
 
 let apply_move move creature1 creature2 =
   let damage_output = damage creature1 creature2 move in
-  let effects = move.meffect in
+  let effects = move.move_effect in
   let creature_with_effects, turn_used =
     if damage_output > 0. then inflict_multiple_status creature2 effects else (creature2, false)
   in
@@ -94,8 +83,8 @@ let apply_move move creature1 creature2 =
 let determine_move env =
   let trainer1 = trainer env.trainer1 in
   let trainer2 = trainer env.trainer2 in
-  let trainer1_creature_speed = (creature_of trainer1).speed in
-  let trainer2_creature_speed = (creature_of trainer2).speed in
+  let trainer1_creature_speed = (creature_of trainer1).current_speed in
+  let trainer2_creature_speed = (creature_of trainer2).current_speed in
   if trainer1_creature_speed > trainer2_creature_speed then true (* true is trainer1 turn *)
   else if trainer2_creature_speed > trainer1_creature_speed then false
     (* false is trainer2 turn *)

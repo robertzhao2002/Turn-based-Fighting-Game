@@ -64,11 +64,11 @@ let print_died name revivable =
 
 (* Game *)
 
-let jit = init_creature_with_name "Jit"
+let jit = init_creature_with_name "Jit" "creatures" "moves"
 
-let spider = init_creature_with_name "Spider"
+let spider = init_creature_with_name "Spider" "creatures" "moves"
 
-let metty_betty = init_creature_with_name "Metty Betty"
+let metty_betty = init_creature_with_name "Metty Betty" "creatures" "moves"
 
 let init_trainer1 = init_trainer "trainer1" jit spider metty_betty
 
@@ -93,7 +93,7 @@ let input_helper () =
 
 let rec send_in_helper env =
   let trainer = trainer_from_turn env in
-  print_died (Game.Creature.name (creature_of trainer)) (has_revive trainer);
+  print_died (creature_of trainer).name (has_revive trainer);
   let other = other_trainer env in
   let input = parse_phrase (read_line ()) in
   match input with
