@@ -1,0 +1,3 @@
+(library
+ (name item)
+ (public_name Game.Item))

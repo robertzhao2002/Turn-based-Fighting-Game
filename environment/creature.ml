@@ -1,7 +1,6 @@
 open Yojson.Basic.Util
 open Move
 open Random
-open Typematchup
 
 let () = Random.self_init ()
 
@@ -28,7 +27,7 @@ type t = {
 }
 
 let rec initialize_creature_moves acc move_file_name = function
-  | [] -> acc
+  | [] -> if acc == [] then raise (Failure "Cannot have empty Move list") else acc
   | h :: t ->
       let move_name_str = to_string h in
       let accumulate_move = init_move_with_name move_name_str move_file_name :: acc in
@@ -42,11 +41,14 @@ let rec get_type_strings acc = function
       get_type_strings accumulate_type t
 
 let type_strings_to_creature_type = function
-  | [ h ] -> (type_from_string h, None, None)
-  | [ h1; h2 ] -> (type_from_string h1, Some (type_from_string h2), None)
+  | [ h ] -> (Typematchup.type_from_string h, None, None)
+  | [ h1; h2 ] ->
+      (Typematchup.type_from_string h1, Some (Typematchup.type_from_string h2), None)
   | [ h1; h2; h3 ] ->
-      (type_from_string h1, Some (type_from_string h2), Some (type_from_string h3))
-  | _ -> raise (Failure "Impossible")
+      ( Typematchup.type_from_string h1,
+        Some (Typematchup.type_from_string h2),
+        Some (Typematchup.type_from_string h3) )
+  | _ -> raise (Failure "Empty Type List Not Allowed")
 
 let creature_json f =
   let json =
@@ -54,6 +56,13 @@ let creature_json f =
     | Sys_error _ -> raise Not_found
   in
   json |> to_assoc |> List.assoc "creatures" |> to_list
+
+let move_json f =
+  let json =
+    try Yojson.Basic.from_file f with
+    | Sys_error _ -> raise Not_found
+  in
+  json |> to_assoc |> List.assoc "moves" |> to_list
 
 let rec creature_json_with_name n = function
   | [] -> raise Not_found
@@ -64,10 +73,12 @@ let rec creature_json_with_name n = function
 
 let creature_json_assoc name file_name =
   creature_json_with_name name
-    (creature_json ("creatures_data" ^ Filename.dir_sep ^ file_name ^ json_suffix))
+    (creature_json ("data" ^ Filename.dir_sep ^ file_name ^ json_suffix))
 
-let init_creature_with_name name creature_file_name move_file_name =
-  let creatures_json = creature_json_assoc name creature_file_name in
+let move_json_assoc name file_name = move_json
+
+let init_creature_with_name name game_data_file move_file_name =
+  let creatures_json = creature_json_assoc name game_data_file in
   let hp = List.assoc "hp" creatures_json |> to_float in
   let attack = List.assoc "attack" creatures_json |> to_float in
   let defense = List.assoc "defense" creatures_json |> to_float in
@@ -270,10 +281,10 @@ let stat_change_string stat base str =
 let creature_string creature =
   if dead creature then
     Printf.sprintf "%s (%s): DEAD" creature.name
-      (creature.creature_type |> creature_type_as_string)
+      (creature.creature_type |> Typematchup.creature_type_as_string)
   else
     Printf.sprintf "%s (%s): %.1f%% HP;%s%s%s%s%s%s%s" creature.name
-      (creature.creature_type |> creature_type_as_string)
+      (creature.creature_type |> Typematchup.creature_type_as_string)
       (creature.current_hp /. creature.base_hp *. 100.)
       (psn_par_string creature.poison " PSN;")
       (psn_par_string creature.paralyze " PAR;")
@@ -288,7 +299,7 @@ let creature_moves_string creature =
     | [] -> acc
     | h :: t ->
         let prefix = "\n- " in
-        let type_string = " (" ^ (h.move_type |> type_as_string) ^ ")" in
+        let type_string = " (" ^ (h.move_type |> Typematchup.type_as_string) ^ ")" in
         creature_moves_string_tr
           (if h.current_uses > 0 then
            acc ^ prefix ^ h.name ^ type_string ^ ": " ^ string_of_int h.current_uses ^ "/"
@@ -306,7 +317,7 @@ let show_change base current =
 let creature_stats_string creature =
   Printf.sprintf "%s's Stats\n- TYPE: %s\n- HP: %.1f/%.1f\n- ATK: %s\n- DEF: %s\n- SPD: %s"
     creature.name
-    (creature.creature_type |> creature_type_as_string)
+    (creature.creature_type |> Typematchup.creature_type_as_string)
     creature.current_hp creature.base_hp
     (show_change creature.base_attack creature.current_attack)
     (show_change creature.base_defense creature.current_defense)

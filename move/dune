@@ -1,0 +1,4 @@
+(library
+ (name move)
+ (public_name Game.Move)
+ (libraries effects types yojson))

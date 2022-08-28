@@ -1,0 +1,4 @@
+(library
+ (name creature)
+ (public_name Game.Creature)
+ (libraries effects move types))
