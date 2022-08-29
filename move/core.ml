@@ -38,9 +38,9 @@ let use m =
   | 0 -> raise NoMoreUses
   | uses -> { m with current_uses = uses - 1 }
 
-let move_string move =
+let as_string move =
   Printf.sprintf "%s\nType: %s\nUses: %d/%d\nBase Power: %d; %s%s" move.name
     (move.move_type |> Types.Core.type_as_string)
     move.current_uses move.max_uses move.base_power
-    (Effects.StatusEffect.effects_as_string move.effects)
-    (Effects.StatChange.stat_changes_as_string move.stat_changes)
+    (Effects.StatusEffect.probabilities_as_string move.effects)
+    (Effects.StatChange.as_string move.stat_changes)

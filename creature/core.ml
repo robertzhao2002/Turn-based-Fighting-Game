@@ -66,6 +66,33 @@ let inflict_damage c d =
   | true -> { damaged with current_hp = 0. }
   | false -> damaged
 
+let rec change_stats creature1 creature2 = function
+  | [] -> (creature1, creature2)
+  | stat_change :: t -> (
+      let multiplier, self = Stats.change stat_change in
+      match stat_change with
+      | Effects.StatChange.Attack _ ->
+          if self then
+            ( { creature1 with current_attack = multiplier *. creature1.current_attack },
+              creature2 )
+          else
+            ( creature1,
+              { creature2 with current_attack = multiplier *. creature2.current_attack } )
+      | Effects.StatChange.Defense _ ->
+          if self then
+            ( { creature1 with current_defense = multiplier *. creature1.current_defense },
+              creature2 )
+          else
+            ( creature1,
+              { creature2 with current_defense = multiplier *. creature2.current_defense } )
+      | Effects.StatChange.Speed _ ->
+          if self then
+            ( { creature1 with current_defense = multiplier *. creature1.current_defense },
+              creature2 )
+          else
+            ( creature1,
+              { creature2 with current_defense = multiplier *. creature2.current_defense } ))
+
 let use_move_with_name creature mname =
   let rec use_move_with_name_tr move_name acc (move_list : Move.Core.t list) =
     match move_list with
@@ -77,7 +104,7 @@ let use_move_with_name creature mname =
   in
   { creature with moves = use_move_with_name_tr mname [] creature.moves }
 
-let creature_string creature =
+let as_string creature =
   if dead creature then
     Printf.sprintf "%s (%s): DEAD" creature.name
       (creature.creature_type |> Types.CreatureType.type_as_string)
@@ -88,12 +115,12 @@ let creature_string creature =
       (StatusEffect.psn_par_string creature.poison " PSN;")
       (StatusEffect.psn_par_string creature.paralyze " PAR;")
       (StatusEffect.confuse_string creature.confuse)
-      (Stats.stat_change_string creature.current_attack creature.base_attack "ATK")
-      (Stats.stat_change_string creature.current_defense creature.base_defense "DEF")
-      (Stats.stat_change_string creature.current_speed creature.base_speed "SPD")
+      (Stats.as_string_abbreviated creature.current_attack creature.base_attack "ATK")
+      (Stats.as_string_abbreviated creature.current_defense creature.base_defense "DEF")
+      (Stats.as_string_abbreviated creature.current_speed creature.base_speed "SPD")
       (if creature.revived then " REVIVED" else "")
 
-let creature_moves_string creature =
+let moves_as_string creature =
   let rec creature_moves_string_tr acc = function
     | [] -> acc
     | h :: t ->
@@ -109,16 +136,11 @@ let creature_moves_string creature =
   in
   creature_moves_string_tr (creature.name ^ "'s Moves") creature.moves
 
-let show_change base current =
-  let ratio = current /. base in
-  if ratio <= 1.03 && ratio >= 0.97 then Printf.sprintf "%.1f" current
-  else Printf.sprintf "%.1f -> %.1f" base current
-
-let creature_stats_string creature =
+let stats_as_string creature =
   Printf.sprintf "%s's Stats\n- TYPE: %s\n- HP: %.1f/%.1f\n- ATK: %s\n- DEF: %s\n- SPD: %s"
     creature.name
     (creature.creature_type |> Types.CreatureType.type_as_string)
     creature.current_hp creature.base_hp
-    (show_change creature.base_attack creature.current_attack)
-    (show_change creature.base_defense creature.current_defense)
-    (show_change creature.base_speed creature.current_speed)
+    (Stats.as_string creature.base_attack creature.current_attack)
+    (Stats.as_string creature.base_defense creature.current_defense)
+    (Stats.as_string creature.base_speed creature.current_speed)

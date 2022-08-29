@@ -44,19 +44,21 @@ let type_matchup = function
 
 let ( >>= ) core_type f =
   match core_type with
-  | Effective factor -> factor
-  | NotVeryEffective factor -> factor
-  | SuperEffective factor -> factor
-  | NoEffect factor -> factor
+  | Effective factor -> f factor
+  | NotVeryEffective factor -> f factor
+  | SuperEffective factor -> f factor
+  | NoEffect factor -> f factor
 
-let effectiveness type1 type2 =
-  type_matchup (type1, type2) >>= fun effectiveness_factor -> effectiveness_factor
+let effectiveness_factor type1 type2 = type_matchup (type1, type2) >>= Util.Helper.identity
 
 let incoming_move_effectiveness_on_creature opp_type = function
   | type1, Some t2, Some t3 ->
-      effectiveness opp_type type1 *. effectiveness opp_type t2 *. effectiveness opp_type t3
-  | type1, Some t2, None -> effectiveness opp_type type1 *. effectiveness opp_type t2
-  | type1, None, None -> effectiveness opp_type type1
+      effectiveness_factor opp_type type1
+      *. effectiveness_factor opp_type t2
+      *. effectiveness_factor opp_type t3
+  | type1, Some t2, None ->
+      effectiveness_factor opp_type type1 *. effectiveness_factor opp_type t2
+  | type1, None, None -> effectiveness_factor opp_type type1
   | _ -> raise (Failure "Impossible")
 
 let same_type_bonus move_type = function

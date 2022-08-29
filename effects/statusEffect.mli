@@ -4,9 +4,9 @@ type prob =
   | ParalyzeProbability of float
   | ConfuseProbability of float
 
-val effect_as_string : prob -> string
+val probability_as_string : prob -> string
 
-val effects_as_string : prob list -> string
+val probabilities_as_string : prob list -> string
 
 module Adapter : sig
   val to_object : Yojson.Basic.t -> prob

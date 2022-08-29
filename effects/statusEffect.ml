@@ -1,27 +1,27 @@
+type t =
+  | Stun
+  | Paralyze of bool
+  | Confuse of int option
+  | Poison of bool
+
 type prob =
   | PoisonProbability of float
   | StunProbability of float
   | ParalyzeProbability of float
   | ConfuseProbability of float
 
-type effect =
-  | Stun
-  | Paralyze of bool
-  | Confuse of int option
-  | Poison of bool
+let probability_as_string = function
+  | PoisonProbability chance -> Util.Helper.percent_string chance ^ " chance to poison"
+  | ConfuseProbability chance -> Util.Helper.percent_string chance ^ " chance to confuse"
+  | ParalyzeProbability chance -> Util.Helper.percent_string chance ^ " chance to paralyze"
+  | StunProbability chance -> Util.Helper.percent_string chance ^ " chance to stun"
 
-let effect_as_string = function
-  | PoisonProbability chance -> Util.Helper.percent_string chance ^ "% chance to poison"
-  | ConfuseProbability chance -> Util.Helper.percent_string chance ^ "% chance to confuse"
-  | ParalyzeProbability chance -> Util.Helper.percent_string chance ^ "% chance to paralyze"
-  | StunProbability chance -> Util.Helper.percent_string chance ^ "% chance to stun"
-
-let effects_as_string = function
+let probabilities_as_string = function
   | [] -> ""
   | effects ->
       let rec e_to_s_tr acc = function
         | [] -> acc
-        | h :: t -> e_to_s_tr (acc ^ " " ^ effect_as_string h ^ ";") t
+        | h :: t -> e_to_s_tr (acc ^ " " ^ probability_as_string h ^ ";") t
       in
       e_to_s_tr "\nStatus Effects:" effects
 

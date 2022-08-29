@@ -69,7 +69,7 @@ module GetData (Data : AdaptableJSONData) : Adapter = struct
     List.assoc field_name json_object |> Yojson.Basic.Util.to_list |> to_string_list
 
   let to_json_object_value field_name =
-    value_from_json_mapping json_object field_name Helper.id
+    value_from_json_mapping json_object field_name Helper.identity
 
   let to_json_object_list_value field_name =
     value_from_json_mapping json_object field_name Yojson.Basic.Util.to_list

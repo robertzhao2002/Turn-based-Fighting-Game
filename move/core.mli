@@ -14,4 +14,4 @@ val init_move_with_name : string -> t
 
 val use : t -> t
 
-val move_string : t -> string
+val as_string : t -> string
