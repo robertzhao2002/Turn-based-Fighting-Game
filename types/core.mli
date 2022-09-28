@@ -7,5 +7,4 @@ type t =
   | Type6
 
 val type_from_string : string -> t
-
 val type_as_string : t -> string

@@ -4,9 +4,7 @@ type t =
   | Speed of float * float * bool
 
 val bind : t -> (float * float * bool -> 'a) -> 'a
-
 val single_as_string : t -> string
-
 val as_string : t list -> string
 
 module Adapter : sig

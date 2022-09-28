@@ -66,5 +66,4 @@ let jit_tests =
   ]
 
 let suite = "test suite for Move module" >::: List.flatten [ jit_tests ]
-
 let _ = run_test_tt_main suite

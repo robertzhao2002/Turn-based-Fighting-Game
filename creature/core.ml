@@ -21,9 +21,7 @@ exception InvalidMove
 let init_creature_with_name creature_name =
   let module CreatureData = struct
     let main_field_name = "creatures"
-
     let object_name = creature_name
-
     let json_file = "data" ^ Filename.dir_sep ^ "game_data.json"
   end in
   let module CreatureJsonAdapter = Util.Json.GetData (CreatureData) in

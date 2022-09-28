@@ -55,7 +55,9 @@ val as_string : t -> string
     - {[
         creature_A (type1/type2/type3): 69.4% HP; PSN; PAR; CONFUSE; ++ATK; -DEF; +++SPD; REVIVED
       ]}
-    - {[ creature_B (type1/type2): DEAD ]} *)
+    - {[
+        creature_B (type1/type2): DEAD
+      ]} *)
 
 val stats_as_string : t -> string
 (** [stats_as_string c] shows all of the base stats of [c] along with the new value of the stat

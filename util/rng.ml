@@ -1,5 +1,4 @@
 let () = Random.self_init ()
-
 let random_bool = Random.bool ()
 
 let random_int lower upper =
