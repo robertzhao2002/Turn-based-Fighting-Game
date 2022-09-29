@@ -11,7 +11,5 @@ type t = {
 exception NoMoreUses
 
 val init_move_with_name : string -> t
-
 val use : t -> t
-
 val as_string : t -> string

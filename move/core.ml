@@ -13,9 +13,7 @@ exception NoMoreUses
 let init_move_with_name move_name =
   let module MoveData = struct
     let main_field_name = "moves"
-
     let object_name = move_name
-
     let json_file = "data" ^ Filename.dir_sep ^ "game_data.json"
   end in
   let module MoveJsonAdapter = Util.Json.GetData (MoveData) in

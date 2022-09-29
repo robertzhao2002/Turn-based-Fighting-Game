@@ -3,7 +3,6 @@ open Move
 open Random
 
 let () = Random.self_init ()
-
 let json_suffix = ".json"
 
 exception InvalidMove

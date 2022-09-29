@@ -9,9 +9,15 @@ val as_string : float -> float -> string
 
     Examples
 
-    - {[ 10.0 -> 42.0 ]}
-    - {[ 16.4 -> 6.9 ]}
-    - {[ 20.5 -> 30.5 ]}*)
+    - {[
+        10.0 -> 42.0
+      ]}
+    - {[
+        16.4 -> 6.9
+      ]}
+    - {[
+        20.5 -> 30.5
+      ]}*)
 
 val as_string_abbreviated : float -> float -> string -> string
 (** [as_string_abbreviated current base stat_string] returns a [string] in the format
@@ -31,5 +37,9 @@ val as_string_abbreviated : float -> float -> string -> string
 
     Examples
 
-    - {[ ++ATK; ]}
-    - {[ -DEF ]} *)
+    - {[
+        ++ATK;
+      ]}
+    - {[
+        -DEF
+      ]} *)

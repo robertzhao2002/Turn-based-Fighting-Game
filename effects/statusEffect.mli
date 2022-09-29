@@ -5,7 +5,6 @@ type prob =
   | ConfuseProbability of float
 
 val probability_as_string : prob -> string
-
 val probabilities_as_string : prob list -> string
 
 module Adapter : sig
