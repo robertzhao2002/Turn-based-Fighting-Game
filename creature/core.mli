@@ -22,12 +22,28 @@ exception InvalidMove
 (** [InvalidMove] is raised when a creature uses a non-existent move, or a move that isn't in
     its moveset. *)
 
+val dead : t -> bool
+(** [dead c] is whether or not the creature is dead. It is dead if its [hp] stat is less than
+    0. Once its [hp] becomes 0, it is dead and can be revived 1 time to half health during
+    battle. *)
+
+val reset : t -> bool -> t
+(** [reset c b] is creature [c] with all stats reverted to their original base values. This is
+    useful when the creature is switched out by the trainer. If [b] is [true], then confusion
+    is removed. Otherwise, just return creature [c] with the same status conditions but with
+    stats reset. *)
+
 val change_stats : t -> t -> Effects.StatChange.t list -> t * t
 (** [change_stats c1 c2 stat_changes] returns a tuple of [c1] and [c2] after all of the stat
     changes in [s]. The stats will be changed by the amounts given in [s] of either creature
     [c1] or [c2] based on the [bool] value contained by each [Effects.StatChange.t]. [c1] will
     always be ["yourself"] and [c2] will always be ["opponent"]. It will apply the RNG of the
     probability contained each [Effects.StatChange.t] as well.*)
+
+val use_move_with_name : t -> string -> t
+(** [use_move_with_name c n] is creature [c] after a move of crature [c] with name[n] has been
+    used. Raises [InvalidMove] if [n] is not one of [c]'s moves. Raises [Move.NoMoreUses] is
+    the move has no uses left. *)
 
 val as_string : t -> string
 (** [as_string c] is [c] name, type(s), hp as a percentage, status effects, stat changes, and

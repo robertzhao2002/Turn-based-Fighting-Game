@@ -61,13 +61,6 @@ let incoming_move_effectiveness_on_creature opp_type = function
   | type1, None, None -> effectiveness_factor opp_type type1
   | _ -> raise (Failure "Impossible")
 
-let same_type_bonus move_type = function
-  | type1, Some t2, Some t3 ->
-      if move_type = type1 || move_type = t2 || move_type = t3 then 1.25 else 1.0
-  | type1, Some t2, None -> if move_type = type1 || move_type = t2 then 1.25 else 1.0
-  | type1, None, None -> if move_type = type1 then 1.25 else 1.0
-  | _ -> raise (Failure "Impossible")
-
 let effectiveness_as_string value =
   if value >= 2.0 then "super effective"
   else if value = 0. then "no effect"

@@ -64,6 +64,19 @@ let inflict_damage c d =
   | true -> { damaged with current_hp = 0. }
   | false -> damaged
 
+let reset creature reset_confusion =
+  let reset_creature =
+    {
+      creature with
+      current_attack = creature.base_attack;
+      current_defense = creature.base_defense;
+      current_speed = creature.base_speed;
+    }
+  in
+  match reset_confusion with
+  | true -> { reset_creature with confuse = None }
+  | false -> reset_creature
+
 let rec change_stats creature1 creature2 = function
   | [] -> (creature1, creature2)
   | stat_change :: t -> (

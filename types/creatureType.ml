@@ -16,3 +16,10 @@ let from_string_list = function
         Some (Core.type_from_string type2),
         Some (Core.type_from_string type3) )
   | _ -> raise (Failure "Cannot have more than 3 types")
+
+let same_type_bonus move_type = function
+  | type1, Some t2, Some t3 ->
+      if move_type = type1 || move_type = t2 || move_type = t3 then 1.25 else 1.0
+  | type1, Some t2, None -> if move_type = type1 || move_type = t2 then 1.25 else 1.0
+  | type1, None, None -> if move_type = type1 then 1.25 else 1.0
+  | _ -> raise (Failure "Impossible")

@@ -1,13 +1,9 @@
 open Creature
 
 exception NoMoreRevives
-
 exception CreatureNotDead of Creature.Core.t
-
 exception InvalidSwitch
-
 exception InvalidCreature
-
 exception NoCreaturesDead
 
 type t = {
@@ -22,9 +18,7 @@ let init_trainer name c1 c2 c3 =
   { name; creature1 = c1; creature2 = c2; creature3 = c3; revive_used = false }
 
 let modify_creature trainer new_creature = { trainer with creature1 = new_creature }
-
 let name trainer = trainer.name
-
 let has_revive trainer = not trainer.revive_used
 
 let all_alive trainer =
