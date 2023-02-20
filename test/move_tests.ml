@@ -47,7 +47,13 @@ let yell_tests =
        increase the user's defense by 50% (with 20% probability)."
       yell
       [ Attack (0.5, 0.5, false); Defense (1.5, 0.2, true) ];
-    move_string_test "Yell string" yell "";
+    move_string_test "Yell string" yell
+      {|yell
+Type: type1
+Uses: 2/2
+Base Power: 100; Accuracy: 70.0%;
+Status Effects: 20.0% chance to poison; 20.0% chance to confuse;
+Stat Changes:  50.0% chance to reduce opponent attack by 50.0%; 20.0% chance to increase user defense by 50.0%;|};
   ]
 
 let nutty_tests =
@@ -58,10 +64,26 @@ let nutty_tests =
     move_uses_test "Nutty has 5 uses" nutty 5;
     no_more_uses_exn_test "Nutty has no more uses" nutty_5;
     move_effects_test "Nutty can paralyze 10% of the time" nutty [ Paralyze 0.1 ];
-    move_string_test "Nutty string" nutty "";
+    move_stat_changes_test
+      "Nutty lowers opponent's accuracy by 10% and improves user's evasiveness by 20%." nutty
+      [ AccuracyS (0.9, 0.2, false); Evasiveness (1.2, 0.1, true) ];
+    move_string_test "Nutty string" nutty
+      {|nutty
+Type: type2
+Uses: 5/5
+Base Power: 50; Accuracy: Always hits;
+Status Effects: 10.0% chance to paralyze;
+Stat Changes:  20.0% chance to reduce opponent accuracy by 10.0%; 10.0% chance to increase user evasiveness by 20.0%;|};
   ]
 
-let chug_jug_tests = [ move_string_test "Chug Jug string" chug_jug "" ]
+let chug_jug_tests =
+  [
+    move_string_test "Chug Jug string" chug_jug
+      {|chug jug
+Type: type3
+Uses: 2/2
+Base Power: 100; Accuracy: 70.0%;|};
+  ]
 
 let suite =
   "test suite for Move module" >::: List.flatten [ yell_tests; nutty_tests; chug_jug_tests ]

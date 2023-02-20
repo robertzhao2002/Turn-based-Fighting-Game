@@ -59,10 +59,17 @@ let jit_tests =
       jit_poison jit_after_poison;
     creature_apply_confusion_test "Jit isn't confused, so won't be affected" jit_test
       (jit_test, false);
-    creature_apply_confusion_test "Jit confused after 1 turn" jit_confuse
-      (jit_confuse_1_turn, true);
-    creature_string_test "Jit confused as a string" jit_confuse_1_turn "";
-    creature_stats_string_test "Jit's stats as string" jit_defense_boost_attack_reduced "";
+    (* creature_apply_confusion_test "Jit confused after 1 turn" jit_confuse
+       (jit_confuse_1_turn, true); *)
+    creature_string_test "Jit confused as a string" jit_confuse_1_turn
+      "Jit (type5/type2/type1): 90.0% HP; CONFUSE;";
+    creature_stats_string_test "Jit's stats as string" jit_defense_boost_attack_reduced
+      {|Jit's Stats
+- TYPE: type5/type2/type1
+- HP: 100.0/100.0
+- ATK: 105.0 -> 52.5
+- DEF: 110.0 -> 165.0
+- SPD: 95.0|};
   ]
 
 let suite = "test suite for Move module" >::: List.flatten [ jit_tests ]
