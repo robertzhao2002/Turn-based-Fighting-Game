@@ -11,5 +11,5 @@ jobs:
       with:
           ocaml-compiler: 4.14.x
     - run: opam install . --deps-only --with-test
-    - run: opam exec -- dune build
-    - run: opam exec -- dune runtest
+    - run: make build
+    - run: make test
