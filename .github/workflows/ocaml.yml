@@ -11,5 +11,6 @@ jobs:
       with:
           ocaml-compiler: 4.14.x
     - run: opam install . --deps-only --with-test
+    - run: eval $(opam env)
     - run: make build
     - run: make test
