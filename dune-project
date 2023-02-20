@@ -7,9 +7,12 @@
 (package
  (name Game)
  (depends
-  (ANSITerminal)
-  (ounit2)
-  (yojson)
+  (ANSITerminal
+   (>= 0.8.5))
   (ocaml
    (>= 4.02.3))
+  (ounit2
+   (>= 2.2.6))
+  (yojson
+   (>= 2.0.2))
   dune))
