@@ -14,11 +14,8 @@ let print_invalid_creature () =
   ANSITerminal.print_string [ ANSITerminal.red ] "Invalid Creature\n"
 
 let print_invalid_switch () = ANSITerminal.print_string [ ANSITerminal.red ] "Invalid Switch\n"
-
 let print_invalid_revive () = ANSITerminal.print_string [ ANSITerminal.red ] "Invalid Revive\n"
-
 let print_invalid_move () = ANSITerminal.print_string [ ANSITerminal.red ] "Invalid Move\n"
-
 let print_quitting () = ANSITerminal.print_string [ ANSITerminal.blue ] "QUITTING....\n"
 
 let print_no_more_revives () =
@@ -30,7 +27,8 @@ let print_turn_prompter env =
     ("What will " ^ Game.Trainer.name trainer ^ " do? ")
 
 let print_trainer env =
-  ANSITerminal.print_string [ determine_print_color env ]
+  ANSITerminal.print_string
+    [ determine_print_color env ]
     (trainer_string (trainer_from_turn env) ^ "\n")
 
 let print_summary_string env name =
@@ -39,7 +37,8 @@ let print_summary_string env name =
     try creature_with_name trainer name with
     | InvalidCreature -> raise Not_found
   in
-  ANSITerminal.print_string [ determine_print_color env ]
+  ANSITerminal.print_string
+    [ determine_print_color env ]
     (creature_stats_string creature ^ "\n" ^ creature_moves_string creature ^ "\n")
 
 let print_move_info_string env name creature =
@@ -50,11 +49,13 @@ let print_move_info_string env name creature =
   ANSITerminal.print_string [ determine_print_color env ] (move_string move ^ "\n")
 
 let print_surrender_string winner loser env =
-  ANSITerminal.print_string [ determine_print_color env ]
+  ANSITerminal.print_string
+    [ determine_print_color env ]
     (loser ^ " has surrendered! " ^ winner ^ " has won the match!\n")
 
 let print_winner_string winner loser env =
-  ANSITerminal.print_string [ determine_print_color env ]
+  ANSITerminal.print_string
+    [ determine_print_color env ]
     (loser ^ " has no more creatures! " ^ winner ^ " has won the match!\n")
 
 let print_died name revivable =
@@ -64,16 +65,11 @@ let print_died name revivable =
 
 (* Game *)
 
-let jit = init_creature_with_name "Jit"
-
-let spider = init_creature_with_name "Spider"
-
-let metty_betty = init_creature_with_name "Metty Betty"
-
+let jit = init_creature_with_name "Jit" "creatures" "moves"
+let spider = init_creature_with_name "Spider" "creatures" "moves"
+let metty_betty = init_creature_with_name "Metty Betty" "creatures" "moves"
 let init_trainer1 = init_trainer "trainer1" jit spider metty_betty
-
 let init_trainer2 = init_trainer "trainer2" spider jit metty_betty
-
 let init_env = init init_trainer1 init_trainer2
 
 let info_helper env info =
@@ -93,7 +89,7 @@ let input_helper () =
 
 let rec send_in_helper env =
   let trainer = trainer_from_turn env in
-  print_died (Game.Creature.name (creature_of trainer)) (has_revive trainer);
+  print_died (creature_of trainer).name (has_revive trainer);
   let other = other_trainer env in
   let input = parse_phrase (read_line ()) in
   match input with

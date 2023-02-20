@@ -1,0 +1,4 @@
+(library
+ (name trainer)
+ (public_name Game.Trainer)
+ (libraries creature))

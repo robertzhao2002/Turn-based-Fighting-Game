@@ -4,49 +4,33 @@ exception InvalidMove
 
 type t = {
   name : string;
-  ctype : Typematchup.creature_type;
-  hp : float;
-  attack : float;
-  defense : float;
-  speed : float;
+  creature_type : Typematchup.creature_type;
+  current_hp : float;
+  current_attack : float;
+  current_defense : float;
+  current_speed : float;
+  base_hp : float;
+  base_attack : float;
+  base_defense : float;
+  base_speed : float;
   paralyze : bool;
   confuse : int option;
   poison : bool;
   moves : Move.t list;
-  accuracy : float;
-  evasiveness : float;
   revived : bool;
 }
-(** The type representing the current state of a creature. The functions below all represent
-    its base stats, but calling a property of this record will give the current value (which
-    could change due to stat changing moves). *)
+(** The type representing the current state of a creature. The base stats will never change,
+    but the current stats will change based on moves used during battle. *)
 
-val init_creature_with_name : string -> t
-(** [init_creature_with_name n] creates a [Creature] type with name [n]. It has no status
-    condition, and all of its base stats are unchanged based on [data/creatures.json]. It has
-    full hp. *)
-
-val name : t -> string
-(** [name c] is the name of creature [c]. *)
-
-val ctype : t -> Typematchup.creature_type
-(** [ctype c] is a tuple that represents the type of the creature. They must have at least 1
-    type and can have up to 3 types. The order of the types don't matter *)
-
-val base_hp : t -> float
-(** [base_hp c] is the base hp of creature [c]. This is the amount of hitpoints [c] has. *)
-
-val base_attack : t -> float
-(** [base_attack c] is the base attack of creature [c]. This determines how much damage [c] can
-    deal when using a given move. *)
-
-val base_defense : t -> float
-(** [base_defense c] is the base defense of creature [c]. This determines how easy/hard it is
-    for [c] to lose hp. *)
-
-val base_speed : t -> float
-(** [base_speed c] is the base speed of creature [c]. This determines who goes first in a given
-    turn. *)
+val init_creature_with_name : string -> string -> string -> t
+(** [init_creature_with_name name creature_file_name move_file_name] creates a [Creature] type
+    with name [name] from a JSON file containing creature data with name [creature_file_name]
+    and a JSON file containing move data with name [move_file_name]. The creature JSON file
+    MUST live under the [creatures_data] folder and follow its corresponding [schema.json], and
+    the move JSON file MUST live under the [moves_data] folder and follow its corresponding
+    [schema.json]. Please omit the [.json] suffix or else the file will not be found. This
+    creature has no status condition, and all of its base stats are unchanged based on the
+    given file. It has full hp. *)
 
 val reset_stats : t -> bool -> t
 (** [reset_stats c b] is creature [c] with all stats reverted to their original base values.

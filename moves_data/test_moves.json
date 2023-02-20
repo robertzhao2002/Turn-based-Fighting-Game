@@ -1,7 +1,7 @@
 {
   "moves": [
     {
-      "name": "yell",
+      "name": "move1",
       "type": "type1",
       "power": 100,
       "accuracy": 70,
@@ -32,7 +32,7 @@
       ]
     },
     {
-      "name": "nutty",
+      "name": "move2",
       "type": "type2",
       "power": 50,
       "accuracy": 1000,
@@ -43,10 +43,23 @@
           "probability": 0.1
         }
       ],
-      "stat changes": []
+      "stat changes": [
+        {
+          "stat": "accuracy",
+          "change": 0.9,
+          "probability": 0.2,
+          "target": "opponent"
+        },
+        {
+          "stat": "evasiveness",
+          "change": 1.2,
+          "probability": 0.1,
+          "target": "yourself"
+        }
+      ]
     },
     {
-      "name": "chug jug",
+      "name": "move3",
       "type": "type3",
       "power": 100,
       "accuracy": 70,

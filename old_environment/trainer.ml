@@ -91,8 +91,8 @@ let revive (trainer : t) revived_name =
             trainer with
             creature1 =
               {
-                (init_creature_with_name trainer.creature1.name) with
-                hp = base_hp trainer.creature1 /. 2.;
+                (reset_stats trainer.creature1 true) with
+                current_hp = trainer.creature1.base_hp /. 2.;
                 revived = true;
               };
             revive_used = true;
@@ -104,8 +104,8 @@ let revive (trainer : t) revived_name =
             trainer with
             creature2 =
               {
-                (init_creature_with_name trainer.creature2.name) with
-                hp = base_hp trainer.creature2 /. 2.;
+                (reset_stats trainer.creature2 true) with
+                current_hp = trainer.creature2.base_hp /. 2.;
                 revived = true;
               };
             revive_used = true;
@@ -117,8 +117,8 @@ let revive (trainer : t) revived_name =
             trainer with
             creature3 =
               {
-                (init_creature_with_name trainer.creature3.name) with
-                hp = base_hp trainer.creature3 /. 2.;
+                (reset_stats trainer.creature3 true) with
+                current_hp = trainer.creature3.base_hp /. 2.;
                 revived = true;
               };
             revive_used = true;

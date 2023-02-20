@@ -1,0 +1,4 @@
+(library
+ (name types)
+ (public_name Game.Types)
+ (libraries util yojson))

@@ -1,0 +1,4 @@
+(library
+ (name environment)
+ (public_name Game.Environment)
+ (libraries trainer util yojson))

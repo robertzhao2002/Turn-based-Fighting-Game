@@ -29,60 +29,23 @@ type stat_change =
   | Attack of float * float * bool
   | Defense of float * float * bool
   | Speed of float * float * bool
-  | AccuracyS of float * float * bool
-  | Evasiveness of float * float * bool
-
-(** The type representing the possible accuracies of a move: either a changing accuracy after
-    opponents may use accuracy-reducing moves, or [Guarantee], which means that a move will
-    always land, regarldess if anyone uses any accuracy/evasiveness-changing moves. *)
-type accuracy =
-  | Accuracy of float
-  | Guarantee
 
 type t = {
   name : string;
-  mtype : Typematchup.t;
-  power : int;
-  accuracy : accuracy;
-  uses : int;
-  meffect : effect list;
-  mstat_change : stat_change list;
+  move_type : Typematchup.t;
+  base_power : int;
+  current_uses : int;
+  total_uses : int;
+  move_effect : effect list;
+  move_stat_change : stat_change list;
 }
 (** The type representing the current state of a move. *)
 
-val init_move_with_name : string -> t
-(** [init_move_with_name n] creates a [Move] type with name [n]. It will have the maximum
-    number of uses. *)
-
-val name : t -> string
-(** [name m] is the name of move [m]. *)
-
-val move_type_of : t -> Typematchup.t
-(** [move_type_of m] is the type of move [m] (e.g. [Type1], [Type2], [Type3], etc.). *)
-
-val base_power : t -> int
-(** [base_power m] is the base power of move [m]. This determines how much damage [m] can
-    potentially do. Moves with higher base power will do more damage when used by the same
-    creature. *)
-
-val base_accuracy : t -> float
-(** [base_accuracy m] is the base accuracy of move [m], which is a floating point number
-    between 0 and 1. This determines how likely the move will hit the target. If it hits the
-    target, it will do damage based on the base power and base attack stat of the creature. If
-    it does not hit (misses), then 0 damage is done. *)
-
-val total_uses : t -> int
-(** [total_uses m] is the number of times move [m] can be used in a battle. Each move has a
-    predetermined number of uses. Every time u use [m], this number decrements. Whenever
-    [uses m] is 0, then [m] cannot be used anymore. When a creature has no more moves to use,
-    it automatically dies, even if it is at full hp. *)
-
-val effects : t -> effect list
-(** [effects m] are the possible status effects, along with their probabilities in a list. *)
-
-val stat_changes : t -> stat_change list
-(** [stat_changes m] are the possible base stat changes, along with their amounts,
-    probabilities, and targets in a list. *)
+val init_move_with_name : string -> string -> t
+(** [init_move_with_name name] creates a [Move] type with name [name] from a JSON file with
+    name [file_name]. This file MUST live under the [moves_data] folder and follow the
+    structure in the [schema.json]. Please omit the [.json] suffix or else the file will not be
+    found. It will have the maximum number of uses. *)
 
 val use : t -> t
 (** [use m] is the state of the move after one use. Its [uses] property will decrease by 1.
@@ -99,7 +62,7 @@ val move_string : t -> string
         attack 1
         Type: type1
         Uses: 5/10
-        Base Power: 100; Accuracy: 70.0%;
+        Base Power: 100;
         Status Effects: 20.0% chance to poison; 20.0% chance to confuse;
         Stat Changes:  50.0% chance to reduce opponent attack by 50.0%; 20.0% chance to increase user defense by 50.0%;
       ]}
@@ -107,5 +70,5 @@ val move_string : t -> string
         attack 2
         Type: type2
         Uses: 2/4
-        Base Power: 100; Accuracy: 70.0%;
+        Base Power: 100;
       ]} *)

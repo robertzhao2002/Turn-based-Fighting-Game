@@ -1,0 +1,51 @@
+{
+  "creatures": [
+    {
+      "name": "A",
+      "type(s)": [],
+      "hp": 100.0,
+      "attack": 100.0,
+      "defense": 100.0,
+      "speed": 100.0,
+      "moves": [
+        "move1",
+        "move2"
+      ]
+    }
+  ],
+  "moves": [
+    {
+      "name": "move1",
+      "type": "type1",
+      "power": 100,
+      "accuracy": 70,
+      "uses": 2,
+      "effects": [
+        {
+          "effect": "poison",
+          "probability": 0.2
+        },
+        {
+          "effect": "confuse",
+          "probability": 0.2
+        }
+      ],
+      "stat_changes": [
+        {
+          "stat": "attack",
+          "multiplier": 0.5,
+          "probability": 0.5,
+          "self": false
+        },
+        {
+          "stat": "defense",
+          "multiplier": 1.5,
+          "probability": 0.2,
+          "self": true
+        }
+      ]
+    }
+  ],
+  "abilities": [],
+  "items": []
+}

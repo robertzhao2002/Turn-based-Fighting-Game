@@ -1,0 +1,4 @@
+(library
+ (name ability)
+ (public_name Game.Ability)
+ (libraries yojson))
