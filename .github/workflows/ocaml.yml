@@ -10,8 +10,12 @@ jobs:
       uses: ocaml/setup-ocaml@v1.1.11
       with:
           ocaml-compiler: 4.14.x
-    - run: > 
+      run: > 
         opam install . --deps-only --with-test;
-        eval $(opam env);
-        make build;
-        make test
+        eval $(opam env)
+    - name: Compilation Check
+      run: make build
+    - name: Unit Tests
+      run: make test
+    - name: ODoc
+      run: make doc
