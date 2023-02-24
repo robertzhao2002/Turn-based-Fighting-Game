@@ -29,5 +29,3 @@ jobs:
       with:
         name: Documentation
         path: _build/*
-    - name: ODoc HTML URL
-      run: steps.html_preview.outputs.url
