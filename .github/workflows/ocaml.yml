@@ -10,8 +10,22 @@ jobs:
       uses: ocaml/setup-ocaml@v1.1.11
       with:
           ocaml-compiler: 4.14.x
-    - run: > 
-        opam install . --deps-only --with-test;
+    - name: Install OCaml Dependencies
+      run: opam install . --deps-only --with-test
+    - name: Compile OCaml
+      run: >
         eval $(opam env);
-        make build;
-        make test
+        make build
+    - name: Run Unit Tests
+      run: >
+        eval $(opam env);
+        make test;
+    - name: Generate ODoc Documentation
+      run: >
+        eval $(opam env); 
+        make doc
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Build Artifact
+        path: _build/*

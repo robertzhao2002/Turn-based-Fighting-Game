@@ -9,6 +9,9 @@
 *.cmxa
 *.zip
 
+# VSCode
+.vscode/
+
 # ocamlbuild working directory
 _build/
 
