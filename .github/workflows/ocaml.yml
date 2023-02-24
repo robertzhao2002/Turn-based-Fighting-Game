@@ -10,6 +10,7 @@ jobs:
       uses: ocaml/setup-ocaml@v1.1.11
       with:
           ocaml-compiler: 4.14.x
+    - name: Install OCaml Dependencies
       run: > 
         opam install . --deps-only --with-test;
         eval $(opam env)
