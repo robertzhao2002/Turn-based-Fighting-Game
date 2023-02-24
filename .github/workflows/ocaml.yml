@@ -21,7 +21,9 @@ jobs:
         eval $(opam env);
         make test;
     - name: Generate ODoc Documentation
-      run: make doc
+      run: >
+        eval $(opam env); 
+        make doc
     - name: Upload ODoc Artifact
       uses: actions/upload-artifact@v3
       with:
