@@ -27,5 +27,5 @@ jobs:
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v3
       with:
-        name: Documentation
+        name: Build Artifact
         path: _build/*
