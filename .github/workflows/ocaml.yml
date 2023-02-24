@@ -15,11 +15,20 @@ jobs:
     - name: Compile OCaml
       run: >
         eval $(opam env);
-        make build;
+        make build
+    - name: Run Unit Tests
+      run: >
+        eval $(opam env);
         make test;
-        make doc
+    - name: Generate ODoc Documentation
+      run: make doc
     - name: Upload ODoc Artifact
       uses: actions/upload-artifact@v3
       with:
         name: Documentation
         path: _build/default/_doc/_html/index.html
+    - name: Preview ODoc HTML
+      id: html_preview
+      uses: pavi2410/html-preview-action@v2
+      with:
+        html_file: '_build/default/_doc/_html/index.html'
